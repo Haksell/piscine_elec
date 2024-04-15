@@ -22,6 +22,7 @@ AlwaysBreakTemplateDeclarations: Yes
 SpacesInAngles: Leave
 AllowShortIfStatementsOnASingleLine: AllIfsAndElse
 AllowShortLoopsOnASingleLine: true
+AllowShortBlocksOnASingleLine: true
 IndentCaseLabels: true
 AllowShortCaseLabelsOnASingleLine: true
 AlignAfterOpenBracket: BlockIndent
