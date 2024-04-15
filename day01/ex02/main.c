@@ -17,7 +17,7 @@ int main() {
     set_pwm_mode();
     TCCR1A |= 1 << COM1A1; // light up when timer1 < OCR1A
     TCCR1B |= 1 << CS10 | 1 << CS12; // prescaler = 1024
-    ICR1 = F_CPU / 1024 - 1;
+    ICR1 = F_CPU / 1024 - 1; // top value before reset to 0
     OCR1A = ICR1 * DUTY_CYCLE;
     while (true) {}
 }
