@@ -1,3 +1,6 @@
+// https://lab-allen.fr/atmega328-configuration-du-timer1/
+// https://www.arxterra.com/tutorial-on-fast-pulse-width-modulation/
+
 #include <avr/io.h>
 #include <stdbool.h>
 
