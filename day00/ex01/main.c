@@ -2,10 +2,8 @@
 
 #include <avr/io.h>
 
-#define PB0 (1 << 0)
-
 int main() {
-    DDRB = PB0; // Configure pin PB0 as output
-    PORTB = PB0; // Set the pin PB0 to high
+    DDRB = 1 << PB0; // Configure pin PB0 as output
+    PORTB = 1 << PB0; // Set the pin PB0 to high
     return 0;
 }
