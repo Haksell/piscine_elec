@@ -21,7 +21,7 @@ static bool check_button(uint8_t pin, uint8_t* counter) {
 static void set_ocr1a(uint8_t duty) { OCR1A = (float)duty / DUTY_STEPS * ICR1; }
 
 int main() {
-    DDRB = (1 << PB1);
+    DDRB = 1 << PB1;
     set_fast_pwm_mode();
     uint8_t duty = 1;
     set_ocr1a(duty);
