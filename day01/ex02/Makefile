@@ -5,7 +5,9 @@ BIN = $(TARGET).bin
 
 all: hex flash
 
-hex: $(BIN)
+hex: $(HEX)
+
+$(HEX): $(BIN)
 	avr-objcopy -O ihex $(BIN) $(HEX)
 
 $(BIN): $(TARGET).c
@@ -16,3 +18,5 @@ flash: $(HEX)
 
 clean:
 	rm -f $(BIN) $(HEX)
+
+.PHONY: all hex flash clean
