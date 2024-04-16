@@ -15,7 +15,7 @@ static void set_fast_pwm_mode() {
 }
 
 int main() {
-    DDRB = (1 << PB1);
+    DDRB = (1 << PB1); // setup LED D2 as output
     TCCR1A = 0;
     TCCR1B = 1 << CS10 | 1 << CS12; // prescaler = 1024
     set_fast_pwm_mode();
