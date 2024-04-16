@@ -13,20 +13,20 @@ static void set_fast_pwm_mode() {
     ICR1 = F_CPU / 1024 - 1;
 }
 
-static bool check_button(uint8_t pin, int* counter) {
+static bool check_button(uint8_t pin, uint8_t* counter) {
     *counter = (PIND >> pin) & 1 ? 0 : *counter + (*counter <= DEBOUNCE_ITERATIONS);
     return *counter == DEBOUNCE_ITERATIONS;
 }
 
-static void set_ocr1a(int duty) { OCR1A = (float)duty / DUTY_STEPS * ICR1; }
+static void set_ocr1a(uint8_t duty) { OCR1A = (float)duty / DUTY_STEPS * ICR1; }
 
 int main() {
     DDRB |= (1 << PB1);
     set_fast_pwm_mode();
-    int duty = 1;
+    uint8_t duty = 1;
     set_ocr1a(duty);
-    int counterSW1 = 0;
-    int counterSW2 = 0;
+    uint8_t counterSW1 = 0;
+    uint8_t counterSW2 = 0;
     while (true) {
         if (check_button(PD2, &counterSW1) && duty < DUTY_STEPS) set_ocr1a(++duty);
         if (check_button(PD4, &counterSW2) && duty > 1) set_ocr1a(--duty);
