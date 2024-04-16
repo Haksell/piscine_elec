@@ -5,7 +5,7 @@
 #define DEBOUNCE_ITERATIONS 12
 #define DUTY_STEPS 10
 
-static void set_fast_pwm_mode() {
+static void set_wgm_mode() {
     TCCR1A |= 1 << WGM11;
     TCCR1B |= 1 << WGM12 | 1 << WGM13;
     TCCR1A |= 1 << COM1A1;
@@ -22,7 +22,7 @@ static void set_ocr1a(uint8_t duty) { OCR1A = (float)duty / DUTY_STEPS * ICR1; }
 
 int main() {
     DDRB = 1 << PB1;
-    set_fast_pwm_mode();
+    set_wgm_mode();
     uint8_t duty = 1;
     set_ocr1a(duty);
     uint8_t counterSW1 = 0;

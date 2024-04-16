@@ -6,7 +6,7 @@
 
 #define DUTY_CYCLE 0.1
 
-static void set_fast_pwm_mode() {
+static void set_wgm_mode() {
     TCCR1A |= 1 << WGM11;
     TCCR1B |= 1 << WGM12 | 1 << WGM13;
     ICR1 = F_CPU / 1024 - 1; // top value before reset to 0
@@ -17,6 +17,6 @@ static void set_fast_pwm_mode() {
 int main() {
     DDRB = 1 << PB1; // setup LED D2 as output
     TCCR1B |= 1 << CS10 | 1 << CS12; // prescaler = 1024
-    set_fast_pwm_mode();
+    set_wgm_mode();
     while (true) {}
 }
