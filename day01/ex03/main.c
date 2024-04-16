@@ -17,12 +17,11 @@ static bool check_button(uint8_t pin, int* counter) {
     return *counter == DEBOUNCE_ITERATIONS;
 }
 
-static void set_ocr1a(int duty) { OCR1A = duty * 0.1 * ICR1; }
+static void set_ocr1a(int duty) { OCR1A = (float)duty / DUTY_STEPS * ICR1; }
 
 int main() {
-    DDRB = (1 << PB1);
-    TCCR1A = 0;
-    TCCR1B = 1 << CS10 | 1 << CS12;
+    DDRB |= (1 << PB1);
+    TCCR1B |= 1 << CS10 | 1 << CS12;
     set_fast_pwm_mode();
     int duty = 1;
     set_ocr1a(duty);
