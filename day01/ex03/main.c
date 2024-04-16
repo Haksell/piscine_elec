@@ -8,8 +8,9 @@
 static void set_fast_pwm_mode() {
     TCCR1A |= 1 << WGM11;
     TCCR1B |= 1 << WGM12 | 1 << WGM13;
-    ICR1 = F_CPU / 1024 - 1;
     TCCR1A |= 1 << COM1A1;
+    TCCR1B |= 1 << CS10 | 1 << CS12;
+    ICR1 = F_CPU / 1024 - 1;
 }
 
 static bool check_button(uint8_t pin, int* counter) {
@@ -21,7 +22,6 @@ static void set_ocr1a(int duty) { OCR1A = (float)duty / DUTY_STEPS * ICR1; }
 
 int main() {
     DDRB |= (1 << PB1);
-    TCCR1B |= 1 << CS10 | 1 << CS12;
     set_fast_pwm_mode();
     int duty = 1;
     set_ocr1a(duty);
