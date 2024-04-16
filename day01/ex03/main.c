@@ -33,5 +33,4 @@ int main() {
         if (check_button(PD4, &counterSW2) && duty > 1) set_ocr1a(--duty);
         _delay_ms(1);
     }
-    return 0;
 }

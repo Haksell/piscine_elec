@@ -10,5 +10,4 @@ int main() {
         PORTB ^= LED;
         _delay_ms(500);
     }
-    return 0;
 }

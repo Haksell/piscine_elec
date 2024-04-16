@@ -9,5 +9,4 @@ int main() {
         PORTB = is_released ? 0 : 1 << PB0; // Set the pin PB0 to on or off
         _delay_ms(20);
     }
-    return 0;
 }

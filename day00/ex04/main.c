@@ -10,12 +10,8 @@ int main() {
     int counterSW1 = 0;
     int counterSW2 = 0;
     while (true) {
-        counterSW1 = (PIND >> PD2) & 1                  ? 0
-                     : counterSW1 > DEBOUNCE_ITERATIONS ? counterSW1
-                                                        : counterSW1 + 1;
-        counterSW2 = (PIND >> PD4) & 1                  ? 0
-                     : counterSW2 > DEBOUNCE_ITERATIONS ? counterSW2
-                                                        : counterSW2 + 1;
+        counterSW1 = (PIND >> PD2) & 1 ? 0 : counterSW1 + (counterSW1 <= DEBOUNCE_ITERATIONS);
+        counterSW2 = (PIND >> PD4) & 1 ? 0 : counterSW2 + (counterSW2 <= DEBOUNCE_ITERATIONS);
         if (counterSW1 == DEBOUNCE_ITERATIONS) ++n;
         if (counterSW2 == DEBOUNCE_ITERATIONS) --n;
         int portb = 0;
@@ -26,5 +22,4 @@ int main() {
         PORTB = portb;
         _delay_ms(1);
     }
-    return 0;
 }
