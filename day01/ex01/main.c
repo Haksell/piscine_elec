@@ -9,8 +9,8 @@
 
 int main() {
     DDRB = 1 << PB1; // setup LED D2 as output
-    TCCR1A = 1 << COM1A0; // toggle OC1A = PB1 on match
-    TCCR1B = CTC_MODE | PRESCALER_256;
+    TCCR1A |= 1 << COM1A0; // toggle OC1A = PB1 on match
+    TCCR1B |= CTC_MODE | PRESCALER_256;
     OCR1A = F_CPU / (2 * 256) - 1; // perform action and reset timer when this value is reached
     while (true) {} // keep the program running
 }
