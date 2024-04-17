@@ -9,7 +9,7 @@ volatile bool led_is_on = false;
 
 int main() {
     DDRB = 1 << PB0;
-    EIMSK = 1 << INT0;
+    EIMSK |= 1 << INT0;
     EICRA = 0b00;
 
     sei();
