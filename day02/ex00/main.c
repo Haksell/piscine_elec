@@ -6,12 +6,12 @@
 #define LED (1 << PB0)
 #define BUTTON (1 << PD2)
 
-#define DEBOUNCE_ITERATIONS 5
+#define DEBOUNCE_ITERATIONS 7
 
-volatile uint8_t debounce_counter = 0;
+volatile int8_t debounce_counter = -1;
 
 ISR(INT0_vect) {
-    debounce_counter = EICRA == 0b10 ? DEBOUNCE_ITERATIONS : 0;
+    debounce_counter = EICRA == 0b10 ? DEBOUNCE_ITERATIONS : -1;
     EICRA ^= 0b01;
 }
 
@@ -25,11 +25,10 @@ int main() {
     sei();
 
     while (true) {
-        if (debounce_counter > 0) {
-            debounce_counter--;
-            if (debounce_counter == 0) PORTB ^= LED;
-        }
+        if (debounce_counter >= 0) --debounce_counter;
+        if (debounce_counter == 0) PORTB ^= LED;
         _delay_ms(1);
     }
+
     return 0;
 }
