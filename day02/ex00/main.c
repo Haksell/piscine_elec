@@ -4,18 +4,23 @@
 #include <util/delay.h>
 
 #define DEBOUNCE_DELAY 20
+#define LED (1 << PB0)
+#define PIN (1 << PD2)
 
 volatile bool led_is_on = false;
 
 int main() {
-    DDRB = 1 << PB0;
+    DDRB = LED;
+    DDRD &= ~PIN;
+    PORTD |= PIN;
+
     EIMSK |= 1 << INT0;
     EICRA = 0b00;
 
     sei();
 
     while (true) {
-        PORTB = led_is_on ? 1 << PB0 : 0;
+        PORTB = led_is_on ? LED : 0;
         _delay_ms(DEBOUNCE_DELAY);
         EIMSK |= 1 << INT0;
     }
