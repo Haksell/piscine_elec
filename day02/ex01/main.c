@@ -4,7 +4,7 @@
 #include <util/delay.h>
 
 #define PWM_FREQ 1000
-#define OOGA 0.000001
+#define OOGA 0.0001
 
 volatile float dutyCycle = 0;
 bool increasing = true;
@@ -23,7 +23,7 @@ ISR(TIMER0_COMPA_vect) {
             increasing = true;
         }
     }
-    OCR1A = dutyCycle * 0x1fff;
+    OCR1A = dutyCycle * 0x3ff;
 }
 
 void setupTimer0() {
