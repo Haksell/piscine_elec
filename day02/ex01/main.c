@@ -9,7 +9,7 @@
 volatile float dutyCycle = 0;
 bool increasing = true;
 
-ISR(TIMER0_COMPA_vect) {
+ISR(TIMER0_OVF_vect) {
     if (increasing) {
         dutyCycle += OCRA1_STEP;
         if (dutyCycle >= 1) {
@@ -27,10 +27,10 @@ ISR(TIMER0_COMPA_vect) {
 }
 
 void setupTimer0() {
-    // Normal node, no prescaling
+    // Normal mode, no prescaling
     TCCR0A = 0;
     TCCR0B = (TCCR0B & 0b11111000) | (1 << CS00);
-    TIMSK0 |= 1 << OCIE0A;
+    TIMSK0 |= 1 << TOIE0;
 }
 
 void setupTimer1() {
