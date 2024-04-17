@@ -3,6 +3,8 @@
 #include <stdbool.h>
 #include <util/delay.h>
 
+#define DEBOUNCE_DELAY 20
+
 volatile bool led_is_on = false;
 
 int main() {
@@ -14,7 +16,7 @@ int main() {
 
     while (true) {
         PORTB = led_is_on ? 1 << PB0 : 0;
-        _delay_ms(20);
+        _delay_ms(DEBOUNCE_DELAY);
         EIMSK |= 1 << INT0;
     }
 }
