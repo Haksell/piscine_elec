@@ -3,31 +3,33 @@
 #include <stdbool.h>
 #include <util/delay.h>
 
-#define DEBOUNCE_DELAY 20
 #define LED (1 << PB0)
-#define PIN (1 << PD2)
+#define BUTTON (1 << PD2)
 
-volatile bool led_is_on = false;
+#define DEBOUNCE_ITERATIONS 5
+
+volatile uint8_t debounce_counter = 0;
+
+ISR(INT0_vect) {
+    debounce_counter = EICRA == 0b10 ? DEBOUNCE_ITERATIONS : 0;
+    EICRA ^= 0b01;
+}
 
 int main() {
-    DDRB = LED;
-    DDRD &= ~PIN;
-    PORTD |= PIN;
+    DDRB |= LED;
+    DDRD &= ~BUTTON;
+    PORTD |= BUTTON;
 
     EIMSK |= 1 << INT0;
-    EICRA = 0b00;
-
+    EICRA = 0b10;
     sei();
 
     while (true) {
-        PORTB = led_is_on ? LED : 0;
-        _delay_ms(DEBOUNCE_DELAY);
-        EIMSK |= 1 << INT0;
+        if (debounce_counter > 0) {
+            debounce_counter--;
+            if (debounce_counter == 0) PORTB ^= LED;
+        }
+        _delay_ms(1);
     }
-}
-
-ISR(INT0_vect) {
-    if (EICRA == 0b00) led_is_on = !led_is_on;
-    EICRA ^= 0b11;
-    EIMSK &= ~(1 << INT0);
+    return 0;
 }
