@@ -3,17 +3,23 @@
 #include <stdbool.h>
 #include <util/delay.h>
 
-#define DEBOUNCE_ITERATIONS 20
+volatile uint8_t counter = 13; // Start value to prove output works. TODO: set at 0
 
 int main() {
-    DDRB = 1 << PB0;
-    int counter = 0;
+    sei();
+
+    DDRB = 0b10111;
+    DDRD &= ~(1 << PD2);
+    PORTD |= 1 << PORTD2;
+    EIMSK |= 1 << INT0;
+    PCMSK2 = 1 << PCINT18;
+    EICRA = 0b00;
+    EIFR |= (1 << INTF0);
+
     while (true) {
-        bool is_released = (PIND >> PD2) & 1;
-        counter = is_released ? 0 : counter > DEBOUNCE_ITERATIONS ? counter : counter + 1;
-        if (counter == DEBOUNCE_ITERATIONS) { PORTB ^= 1 << PB0; }
-        _delay_ms(1);
+        PORTB = (counter & 7) | (counter & 8) << 1;
+        _delay_ms(10);
     }
 }
 
-// PCINT2 PCINT2_vect
+ISR(INT0_vect) { ++counter; }
