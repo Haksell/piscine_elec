@@ -3,8 +3,8 @@
 #include <avr/io.h>
 #include <stdbool.h>
 
-#define USERNAME "ooga"
-#define PASSWORD "booga"
+#define USERNAME "spectre"
+#define PASSWORD "oogachaka"
 
 #define BACKSPACE '\x7f'
 #define CRLF "\r\n"
@@ -83,12 +83,13 @@ static bool login() {
 }
 
 static void light_show() {
-    uart_printstr(CRLF "gg ez" CRLF);
     while (true) {}
 }
 
 int main() {
     uart_init();
     while (!login()) uart_printstrln("Bad combination username/password" CRLF);
+    uart_printstrln("Hello spectre!");
+    uart_printstrln("Shall we play a game?");
     light_show();
 }
