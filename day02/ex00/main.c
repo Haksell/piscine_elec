@@ -29,6 +29,4 @@ int main() {
         if (debounce_counter == 0) PORTB ^= LED;
         _delay_ms(1);
     }
-
-    return 0;
 }

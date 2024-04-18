@@ -37,5 +37,4 @@ int main() {
         PORTB = n & 7 | (n & 8) << 1;
         _delay_ms(1);
     }
-    return 0;
 }
