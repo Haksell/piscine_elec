@@ -27,4 +27,4 @@ flash: $(HEX) killscreen
 clean: killscreen
 	rm -f $(BIN) $(HEX)
 
-.PHONY: all hex flash clean killscreen
+.PHONY: all screen hex killscreen flash clean
