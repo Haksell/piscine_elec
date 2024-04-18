@@ -1,9 +1,11 @@
-// TODO: buffer to check valid username/password combination
 // TODO: handle delete
 // TODO: light show
 
 #include <avr/io.h>
 #include <stdbool.h>
+
+#define USERNAME "ooga"
+#define PASSWORD "booga"
 
 #define CRLF "\r\n"
 
@@ -14,6 +16,13 @@
     })
 
 static char is_printable(char c) { return c >= 32 && c <= 126; }
+
+static bool str_equal(const char* s1, const char* s2) {
+    while (*s1 || *s2) {
+        if (*s1++ != *s2++) return false;
+    }
+    return true;
+}
 
 static void uart_init(void) {
     UBRR0 = ROUND_DIV(F_CPU, 16 * UART_BAUDRATE) - 1;
@@ -39,26 +48,32 @@ static void uart_printstrln(const char* str) {
     uart_printstr(CRLF);
 }
 
-static void read_string(char* prompt, bool hide) {
+static bool read_string(char* prompt, char* target, bool hide) {
+    char buffer[128];
+    int i = 0;
     uart_printstr("    ");
     uart_printstr(prompt);
     uart_printstr(": ");
     while (true) {
         char c = uart_rx();
         if (c == '\r') {
+            buffer[i] = '\0';
             uart_printstr(CRLF);
-            return;
+            return str_equal(buffer, target);
         }
-        if (is_printable(c)) uart_tx(hide ? '*' : c);
+        if (is_printable(c) && i < sizeof(buffer) - 1) {
+            buffer[i] = c;
+            ++i;
+            uart_tx(hide ? '*' : c);
+        }
     }
 }
 
 static bool login() {
     uart_printstrln("Enter your login:");
-    read_string("username", false);
-    read_string("password", true);
-    uart_printstr("Bad combination username/password" CRLF CRLF);
-    return false;
+    bool good_username = read_string("username", USERNAME, false);
+    bool good_password = read_string("password", PASSWORD, true);
+    return good_username && good_password;
 }
 
 static void light_show() {
@@ -68,6 +83,6 @@ static void light_show() {
 
 int main() {
     uart_init();
-    while (!login()) {}
+    while (!login()) uart_printstrln("Bad combination username/password" CRLF);
     light_show();
 }
