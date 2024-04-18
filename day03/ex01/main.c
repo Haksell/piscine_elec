@@ -29,10 +29,30 @@ static void uart_printstrln(const char* str) {
     uart_tx('\n');
 }
 
+const float DUTY_STEP = 256.0 / F_CPU;
+volatile float dutyCycle = 0;
+volatile char c = 'A';
+bool increasing = true;
+
+ISR(TIMER0_OVF_vect) {
+    dutyCycle += DUTY_STEP;
+    if (dutyCycle >= 1) {
+        uart_tx(c++);
+        if (c > 'Z') c = 'A';
+        uart_printstrln("ello World!"); // TODO: H
+        dutyCycle = 0;
+    }
+}
+
+void setup_timer0() {
+    TCCR0A = 0;
+    TCCR0B = (TCCR0B & 0b11111000) | (1 << CS00);
+    TIMSK0 |= 1 << TOIE0;
+}
+
 int main() {
     uart_init();
-    while (true) {
-        uart_printstrln("Hello World!");
-        _delay_ms(2000);
-    }
+    setup_timer0();
+    sei();
+    while (true) {}
 }
