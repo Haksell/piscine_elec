@@ -8,10 +8,6 @@
 #define USERNAME "spectre"
 #define PASSWORD "oogachaka"
 
-// TODO: remove
-#define USERNAME ""
-#define PASSWORD ""
-
 #define BACKSPACE '\x7f'
 #define CRLF "\r\n"
 
