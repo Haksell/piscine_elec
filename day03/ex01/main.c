@@ -31,8 +31,8 @@ static void uart_printstrln(const char* str) {
 
 const float DUTY_STEP = 256.0 / F_CPU;
 volatile float dutyCycle = 0;
-volatile char c = 'A';
 bool increasing = true;
+volatile char c = 'A';
 
 ISR(TIMER0_OVF_vect) {
     dutyCycle += DUTY_STEP;
