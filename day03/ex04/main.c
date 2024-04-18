@@ -1,7 +1,6 @@
 // TODO: light show
 
-#include <avr/io.h>
-#include <stdbool.h>
+#include "main.h"
 
 #define USERNAME "spectre"
 #define PASSWORD "oogachaka"
