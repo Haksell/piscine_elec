@@ -7,7 +7,6 @@ static void uart_init(void) {
     UBRR0 = F_CPU / 8 / UART_BAUDRATE - 1; // Set baud rate register
     UCSR0A |= 1 << U2X0; // Enable 2x speed
     UCSR0B |= 1 << TXEN0; // Enable transmitter
-    UCSR0C |= 1 << UCSZ01 | 1 << UCSZ00; // Set frame format: 8data, 1stop bit
 }
 
 static void uart_tx(char c) {
