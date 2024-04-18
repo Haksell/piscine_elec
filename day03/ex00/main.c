@@ -3,38 +3,22 @@
 #include <stdbool.h>
 #include <util/delay.h>
 
-#define BUTTONS (1 << PD2 | 1 << PD4)
-#define DEBOUNCE_ITERATIONS 7
+static void uart_init(void) {
+    UBRR0 = F_CPU / 8 / UART_BAUDRATE - 1; // Set baud rate register
+    UCSR0A |= 1 << U2X0; // Enable 2x speed
+    UCSR0B |= 1 << TXEN0; // Enable transmitter
+    UCSR0C |= 1 << UCSZ01 | 1 << UCSZ00; // Set frame format: 8data, 1stop bit
+}
 
-volatile int8_t counter_sw1 = -1;
-volatile int8_t counter_sw2 = -1;
-volatile bool sw1_is_pressed = false;
-volatile bool sw2_is_pressed = false;
-volatile int8_t n = 0;
-
-ISR(INT0_vect) { counter_sw1 = DEBOUNCE_ITERATIONS; }
-ISR(PCINT2_vect) { counter_sw2 = DEBOUNCE_ITERATIONS; }
+static void uart_tx(char c) {
+    while (!(UCSR0A & 1 << UDRE0)) {} // Wait for the transmit buffer to be empty
+    UDR0 = c; // Put data into the buffer
+}
 
 int main() {
-    DDRB = 0b10111;
-    DDRD &= ~BUTTONS;
-    PORTD |= BUTTONS;
-
-    // Set PD2 interrupt handler
-    EIMSK |= 1 << INT0;
-    EICRA = 0b01;
-
-    // Set PD4 interrupt handler
-    PCICR |= 1 << PCIE2; // Enable pin change interrupts for PCINT23..16
-    PCMSK2 |= 1 << PCINT20; // Enable PCINT for PD4
-
-    sei();
+    uart_init();
     while (true) {
-        if (counter_sw1 >= 0) --counter_sw1;
-        if (counter_sw1 == 0) n += sw1_is_pressed = !sw1_is_pressed;
-        if (counter_sw2 >= 0) --counter_sw2;
-        if (counter_sw2 == 0) n -= sw2_is_pressed = !sw2_is_pressed;
-        PORTB = n & 7 | (n & 8) << 1;
-        _delay_ms(1);
+        uart_tx('Z');
+        _delay_ms(1000);
     }
 }
