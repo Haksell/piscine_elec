@@ -10,14 +10,13 @@
     })
 
 static void uart_init(void) {
-    UBRR0 = ROUND_DIV(F_CPU, 16 * UART_BAUDRATE) - 1; // set baud rate register
-    UCSR0B |= 1 << TXEN0; // enable transmitter
-    // we could set 8N1 format in UCSR0B but it seems to be the default already
+    UBRR0 = ROUND_DIV(F_CPU, 16 * UART_BAUDRATE) - 1;
+    UCSR0B |= 1 << TXEN0;
 }
 
 static void uart_tx(char c) {
-    while (!(UCSR0A & 1 << UDRE0)) {} // wait for the transmit buffer to be empty
-    UDR0 = c; // put data into the buffer
+    while (!(UCSR0A & 1 << UDRE0)) {}
+    UDR0 = c;
 }
 
 static void uart_printstr(const char* str) {
