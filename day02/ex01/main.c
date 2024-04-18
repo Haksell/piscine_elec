@@ -24,14 +24,14 @@ ISR(TIMER0_OVF_vect) {
     OCR1A = dutyCycle * ICR1;
 }
 
-void setupTimer0() {
+void setup_timer0() {
     // Normal mode, no prescaling
     TCCR0A = 0;
     TCCR0B = (TCCR0B & 0b11111000) | (1 << CS00);
     TIMSK0 |= 1 << TOIE0;
 }
 
-void setupTimer1() {
+void setup_timer1() {
     DDRB |= 1 << PB1;
     OCR1A = 0;
     // Light LED on when 0 <= TCNT1 < OCR1A, off when OCR1A <= TCNT1 < ICR1
@@ -42,8 +42,8 @@ void setupTimer1() {
 }
 
 int main() {
-    setupTimer0();
-    setupTimer1();
+    setup_timer0();
+    setup_timer1();
     sei();
     while (true) _delay_ms(1);
 }
