@@ -1,7 +1,6 @@
 #include <avr/interrupt.h>
 #include <avr/io.h>
 #include <stdbool.h>
-#include <util/delay.h>
 
 #define CTC_MODE (1 << WGM12)
 #define PRESCALER_1024 (1 << CS10 | 1 << CS12)
