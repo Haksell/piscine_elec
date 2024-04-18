@@ -9,7 +9,7 @@
         ((dividend) + (_divisor >> 1)) / _divisor;                                                 \
     })
 
-static void uart_init(void) {
+static void uart_init() {
     UBRR0 = ROUND_DIV(F_CPU, 16 * UART_BAUDRATE) - 1; // set baud rate register
     UCSR0B |= 1 << TXEN0; // enable transmitter
     // we could set 8N1 format in UCSR0B but it seems to be the default already

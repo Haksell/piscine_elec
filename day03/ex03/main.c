@@ -12,7 +12,7 @@ static char swapcase(char c) {
     return ('A' <= c && c <= 'Z') || ('a' <= c && c <= 'z') ? c ^ 32 : c;
 }
 
-static void uart_init(void) {
+static void uart_init() {
     UBRR0 = ROUND_DIV(F_CPU, 16 * UART_BAUDRATE) - 1;
     UCSR0B |= 1 << RXCIE0 | 1 << RXEN0 | 1 << TXEN0;
 }

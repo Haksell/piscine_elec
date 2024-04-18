@@ -23,7 +23,7 @@ static bool str_equal(const char* s1, const char* s2) {
     return true;
 }
 
-static void uart_init(void) {
+static void uart_init() {
     UBRR0 = ROUND_DIV(F_CPU, 16 * UART_BAUDRATE) - 1;
     UCSR0B |= 1 << RXEN0 | 1 << TXEN0;
 }
