@@ -3,7 +3,11 @@
 #include <stdbool.h>
 #include <util/delay.h>
 
-#define ROUND_DIV(dividend, divisor) (((dividend) + ((divisor) >> 1)) / (divisor))
+#define ROUND_DIV(dividend, divisor)                                                               \
+    ({                                                                                             \
+        typeof(divisor) _divisor = (divisor);                                                      \
+        ((dividend) + (_divisor >> 1)) / _divisor;                                                 \
+    })
 
 static void uart_init(void) {
     UBRR0 = ROUND_DIV(F_CPU, 16 * UART_BAUDRATE) - 1; // set baud rate register
