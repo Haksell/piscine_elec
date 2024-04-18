@@ -1,10 +1,16 @@
 #pragma once
 
+#include <avr/interrupt.h>
 #include <avr/io.h>
 #include <stdbool.h>
+#include <util/delay.h>
 
 #define USERNAME "spectre"
 #define PASSWORD "oogachaka"
+
+// TODO: remove
+#define USERNAME ""
+#define PASSWORD ""
 
 #define BACKSPACE '\x7f'
 #define CRLF "\r\n"
