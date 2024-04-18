@@ -3,6 +3,10 @@
 #include <stdbool.h>
 #include <util/delay.h>
 
+#define CTC_MODE (1 << WGM12)
+#define PRESCALER_1024 (1 << CS10 | 1 << CS12)
+#define PRINT_INTERVAL 2.0 // if too big, will overflow OCR1A
+
 #define ROUND_DIV(dividend, divisor)                                                               \
     ({                                                                                             \
         typeof(divisor) _divisor = (divisor);                                                      \
@@ -29,30 +33,17 @@ static void uart_printstrln(const char* str) {
     uart_tx('\n');
 }
 
-const float DUTY_STEP = 256.0 / F_CPU;
-volatile float dutyCycle = 0;
-bool increasing = true;
-volatile char c = 'A';
+ISR(TIMER1_COMPA_vect) { uart_printstrln("Hello World!"); }
 
-ISR(TIMER0_OVF_vect) {
-    dutyCycle += DUTY_STEP;
-    if (dutyCycle >= 1) {
-        uart_tx(c++);
-        if (c > 'Z') c = 'A';
-        uart_printstrln("ello World!"); // TODO: H
-        dutyCycle = 0;
-    }
-}
-
-void setup_timer0() {
-    TCCR0A = 0;
-    TCCR0B = (TCCR0B & 0b11111000) | (1 << CS00);
-    TIMSK0 |= 1 << TOIE0;
+void setup_timer1() {
+    TCCR1B |= CTC_MODE | PRESCALER_1024;
+    OCR1A = F_CPU * PRINT_INTERVAL / 1024 - 1;
+    TIMSK1 |= 1 << OCIE1A;
 }
 
 int main() {
     uart_init();
-    setup_timer0();
+    setup_timer1();
     sei();
     while (true) {}
 }
