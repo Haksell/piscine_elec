@@ -1,4 +1,3 @@
-// TODO: handle delete
 // TODO: light show
 
 #include <avr/io.h>
@@ -7,6 +6,7 @@
 #define USERNAME "ooga"
 #define PASSWORD "booga"
 
+#define BACKSPACE '\x7f'
 #define CRLF "\r\n"
 
 #define ROUND_DIV(dividend, divisor)                                                               \
@@ -60,6 +60,12 @@ static bool read_string(char* prompt, char* target, bool hide) {
             buffer[i] = '\0';
             uart_printstr(CRLF);
             return str_equal(buffer, target);
+        }
+        if (c == BACKSPACE && i > 0) {
+            --i;
+            uart_tx('\b');
+            uart_tx(' ');
+            uart_tx('\b');
         }
         if (is_printable(c) && i < sizeof(buffer) - 1) {
             buffer[i] = c;
