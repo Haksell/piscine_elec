@@ -10,9 +10,11 @@ void light_show() {
     while (true) {
         ++n;
         _delay_ms(DELAY_MS);
-        PORTB = (n & 7) | (n & 8) << 1;
+        if (n & 1) PORTB ^= 1 << PB0;
+        else if (n & 2) PORTB ^= 1 << PB1;
+        else if (n & 4) PORTB ^= 1 << PB2;
+        else PORTB ^= 1 << PB4;
         _delay_ms(DELAY_MS);
-        uint8_t l3b = n & 7;
         if (n & 1) PORTD ^= 1 << 6;
         else if (n & 2) PORTD ^= 1 << 5;
         else PORTD ^= 1 << 3;
