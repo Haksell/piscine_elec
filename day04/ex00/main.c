@@ -17,6 +17,7 @@ void i2c_write(uint8_t byte) {
     while (!(TWCR & 1 << TWINT)) {}
 }
 
+// TODO: no argument
 void i2c_start(uint8_t address) {
     TWCR = (1 << TWINT) | (1 << TWEN) | (1 << TWSTA);
     while (!(TWCR & 1 << TWINT)) {}
