@@ -1,5 +1,7 @@
 MCU := atmega328p
 TARGET := main
+SRC := $(wildcard *.c)
+OBJ := $(SRC:.c=.o)
 HEX := $(TARGET).hex
 BIN := $(TARGET).bin
 PORT_FILE := /dev/ttyUSB0
@@ -8,6 +10,9 @@ F_CPU := 16000000UL
 F_SCL := 100000UL
 UART_BAUDRATE := 115200
 DEFINES := -DF_CPU=$(F_CPU) -DF_SCL=$(F_SCL) -DUART_BAUDRATE=$(UART_BAUDRATE)
+
+CC := avr-gcc
+CFLAGS := -mmcu=$(MCU) $(DEFINES) -Os
 
 all: hex flash
 
@@ -24,13 +29,16 @@ hex: $(HEX)
 $(HEX): $(BIN)
 	avr-objcopy -O ihex $< $@
 
-$(BIN): $(TARGET).c
-	avr-gcc -mmcu=$(MCU) $(DEFINES) -Os -o $@ $<
+$(BIN): $(OBJ)
+	$(CC) $(CFLAGS) -o $@ $^
+
+%.o: %.c main.h
+	$(CC) $(CFLAGS) -c $< -o $@
 
 flash: $(HEX) killscreen
 	avrdude -c arduino -P $(PORT_FILE) -b $(UART_BAUDRATE) -p $(MCU) -U flash:w:$<:i
 
 clean: killscreen
-	rm -f $(BIN) $(HEX)
+	rm -f $(BIN) $(HEX) $(OBJ)
 
 .PHONY: all screen killscreen run hex flash clean
