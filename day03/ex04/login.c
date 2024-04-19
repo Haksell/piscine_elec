@@ -15,9 +15,7 @@ static bool read_string(char* prompt, char* target, bool hide) {
         }
         if (c == BACKSPACE && i > 0) {
             --i;
-            uart_tx('\b');
-            uart_tx(' ');
-            uart_tx('\b');
+            uart_printstr("\b \b");
         }
         if (is_printable(c) && i < sizeof(buffer) - 1) {
             buffer[i] = c;
