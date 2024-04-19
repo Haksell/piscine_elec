@@ -1,9 +1,8 @@
-// TODO: print bytes in UART?
-// The program must return status values to your computer after each data transmission.
-
 #include "main.h"
 
-#define AHT20 0x38
+#define AHT20_ADDRESS 0x38
+#define AHT20_WRITE false
+#define AHT20_READ true
 
 // TODO: uart.c
 
@@ -28,10 +27,9 @@ void i2c_write(uint8_t byte) {
     while (!(TWCR & 1 << TWINT)) {}
 }
 
-void i2c_start(uint8_t address) {
+void i2c_start() {
     TWCR = (1 << TWINT) | (1 << TWEN) | (1 << TWSTA);
     while (!(TWCR & 1 << TWINT)) {}
-    i2c_write(address << 1); // TODO: "| 0" or "| 1" depending on read or write
 }
 
 uint8_t i2c_read(uint8_t ack) {
@@ -45,13 +43,16 @@ void i2c_stop() {
     while (!(TWCR & 1 << TWSTO)) {}
 }
 
-int main(void) {
+void aht_start(bool read) { i2c_write(AHT20_ADDRESS << 1 | read); }
+
+int main() {
     uart_init();
     i2c_init();
+    i2c_start();
 
     while (true) {
         // Trigger measurement command sequence
-        i2c_start(AHT20); // Shift address and indicate write operation
+        aht_start(AHT20_WRITE); // Start AHT20 in read mode
         i2c_write(0xAC); // Trigger measurement command
         i2c_write(0x33); // First parameter byte
         i2c_write(0x00); // Second parameter byte
@@ -62,18 +63,18 @@ int main(void) {
         // Check sensor status until it's not busy
         unsigned char status;
         do {
-            i2c_start((AHT20 << 1) | 0x01); // Shift address and indicate read operation
+            aht_start(AHT20_READ); // Start AHT20 in read mode
             status = i2c_read(true);
             i2c_stop(); // Stop to re-start the process if necessary
             if (status & 0x80) { // If sensor is busy
                 _delay_ms(10); // Wait a bit before trying again
             }
-            uart_tx('x');
+            uart_tx('.');
         } while (status & 0x80);
         uart_tx('\n');
 
         // Restart and read 7 bytes of data
-        i2c_start((AHT20 << 1) | 0x01); // Shift address and indicate read operation
+        aht_start(AHT20_READ); // Start AHT20 in read mode
         for (int i = 0; i < 7; i++) {
             bool ack = i < 6; // ACK for all but last byte
             unsigned char data = i2c_read(ack);
