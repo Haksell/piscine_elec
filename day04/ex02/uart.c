@@ -1,5 +1,8 @@
 #include "main.h"
 
+// TODO: uart_printf
+// TODO: rename functions putchar... like libft
+
 void uart_init() {
     UBRR0 = ROUND_DIV(F_CPU, 16 * UART_BAUDRATE) - 1;
     UCSR0B |= 1 << RXEN0 | 1 << TXEN0;
@@ -15,6 +18,14 @@ char uart_rx() {
     return UDR0;
 }
 
+void uart_putnbr(uint32_t n) {
+    if (n < 10) uart_tx(n + '0');
+    else {
+        uart_putnbr(n / 10);
+        uart_tx(n % 10 + '0');
+    }
+}
+
 void uart_printstr(const char* str) {
     while (*str) uart_tx(*str++);
 }
@@ -22,4 +33,12 @@ void uart_printstr(const char* str) {
 void uart_printstrln(const char* str) {
     uart_printstr(str);
     uart_printstr(CRLF);
+}
+
+void uart_print_nibble(uint8_t byte) { uart_tx(byte < 10 ? byte + '0' : byte + 55); }
+
+void print_hex_value(uint8_t byte) {
+    uart_print_nibble(byte >> 4);
+    uart_print_nibble(byte & 15);
+    uart_tx(' ');
 }
