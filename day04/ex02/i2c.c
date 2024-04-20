@@ -18,8 +18,14 @@ void i2c_write(uint8_t byte) {
     while (!(TWCR & 1 << TWINT)) {}
 }
 
-uint8_t i2c_read(uint8_t ack) {
-    TWCR = 1 << TWINT | 1 << TWEN | !!ack << TWEA;
+uint8_t i2c_read() {
+    TWCR = 1 << TWINT | 1 << TWEN;
+    while (!(TWCR & 1 << TWINT)) {}
+    return TWDR;
+}
+
+uint8_t i2c_read_ack() {
+    TWCR = 1 << TWINT | 1 << TWEN | 1 << TWEA;
     while (!(TWCR & 1 << TWINT)) {}
     return TWDR;
 }

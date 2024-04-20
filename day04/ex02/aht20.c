@@ -18,7 +18,7 @@ static void aht20_send_cmd(uint8_t cmd) {
     i2c_stop();
 }
 
-uint8_t aht20_read_cmd() {
+static uint8_t aht20_read_cmd() {
     i2c_start();
     i2c_write(AHT20_ADDRESS << 1 | I2C_READ);
     uint8_t read = i2c_read(I2C_NACK);
@@ -31,9 +31,11 @@ void aht20_init() {
     aht20_send_cmd(0xBA);
     _delay_ms(AHT20_DELAY);
     aht20_send_cmd(AHT20_GET_STATUS);
-    if (!(aht20_read_cmd() & 3)) {
+    if (aht20_read_cmd() & AHT20_CALIBRATED) uart_printstrln("AHT20 already calibrated");
+    else {
         aht20_send_full_command(0xBE, 0x08, 0x00);
         _delay_ms(AHT20_AFTER_POWER_ON_DELAY);
+        uart_printstrln("AHT20 calibration complete");
     }
 }
 
@@ -49,8 +51,8 @@ static bool checksum(t_aht20 aht20) {
 bool aht20_read_sensor(t_aht20 aht20) {
     i2c_start();
     i2c_write(AHT20_ADDRESS << 1 | I2C_READ);
-    for (uint8_t i = 0; i < AHT20_CRC; ++i) aht20[i] = i2c_read(I2C_ACK);
-    aht20[AHT20_CRC] = i2c_read(I2C_NACK);
+    for (uint8_t i = 0; i < AHT20_CRC; ++i) aht20[i] = i2c_read_ack();
+    aht20[AHT20_CRC] = i2c_read();
     i2c_stop();
     return checksum(aht20);
 }
