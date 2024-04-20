@@ -7,7 +7,7 @@ int main() {
     while (true) {
         aht20_trigger_measurement();
         _delay_ms(AHT20_MEASURE_DELAY);
-        aht20_event();
+        aht20_process_measurement();
         _delay_ms(1000);
     }
 }

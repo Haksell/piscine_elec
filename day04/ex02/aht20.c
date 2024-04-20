@@ -21,22 +21,21 @@ static void aht20_send_cmd(uint8_t cmd) {
 static uint8_t aht20_read_cmd() {
     i2c_start();
     i2c_write(AHT20_ADDRESS << 1 | I2C_READ);
-    register uint8_t read = i2c_read(I2C_NACK);
+    uint8_t read = i2c_read(I2C_NACK);
     i2c_stop();
-
     return read;
 }
 
 void aht20_init() {
     _delay_ms(AHT20_AFTER_POWER_ON_DELAY);
-    aht20_send_cmd(AHT20_SOFT_RESET_CMD);
+    aht20_send_cmd(0xBA);
     _delay_ms(AHT20_DELAY);
 
-    aht20_send_cmd(AHT20_STATUS_WORD);
+    aht20_send_cmd(0x71);
     uint8_t status_word = aht20_read_cmd();
 
-    if (!(status_word & AHT20_CAL)) {
-        aht20_send_full_command(AHT20_INIT_CMD, AHT20_INIT_PARAM_1, AHT20_INIT_PARAM_2);
+    if (!(status_word & 3)) {
+        aht20_send_full_command(0xBE, 0x08, 0x00);
         _delay_ms(AHT20_AFTER_POWER_ON_DELAY);
     }
 }
@@ -77,9 +76,7 @@ static float aht20_get_humidity() {
     return srh / 1048576.0;
 }
 
-void aht20_trigger_measurement() {
-    aht20_send_full_command(AHT20_MEASURE_CMD, AHT20_MEASURE_PARAM_1, AHT20_MEASURE_PARAM_2);
-}
+void aht20_trigger_measurement() { aht20_send_full_command(0xAC, 0x33, 0x00); }
 
 void weather_report() {
     // TODO: avg of last 3
@@ -88,21 +85,17 @@ void weather_report() {
     uart_printstr("Temperature: ");
     // dtostrf
     uart_putnbr(temp);
-    uart_tx(',');
+    uart_tx('.');
     uart_putnbr((uint32_t)(temp * 10) % 10);
     uart_printstr("°C, Humidity: ");
     uart_putnbr(hum * 100);
-    uart_tx(',');
+    uart_tx('.');
     uart_putnbr((uint32_t)(hum * 1000) % 10);
     uart_printstrln("%");
 }
 
-void aht20_event() {
-    if (!(aht20_read_cmd() & 0x80)) {
-        if (!aht20_read()) {
-            uart_printstrln("CRC failure");
-            return;
-        }
-        weather_report();
-    }
+void aht20_process_measurement() {
+    if (aht20_read_cmd() & 0x80) uart_printstrln("AHT20 busy");
+    else if (aht20_read()) weather_report();
+    else uart_printstrln("CRC failure");
 }
