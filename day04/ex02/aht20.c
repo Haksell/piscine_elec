@@ -57,24 +57,8 @@ static uint8_t crc(uint8_t* data, uint8_t len) {
 static bool aht20_read() {
     i2c_start();
     i2c_write(AHT20_ADDRESS << 1 | I2C_READ);
-    for (uint8_t i = 0; i < 7; i++) {
-        uint8_t byte = i2c_read(i == 6 ? I2C_NACK : I2C_ACK);
-        // if (i == 3) {
-        //     uart_print_nibble(byte >> 4);
-        //     uart_tx(' ');
-        //     uart_print_nibble(byte & 15);
-        // } else if (i != 0 && i != 6) {
-        //     uart_print_nibble(byte >> 4);
-        //     uart_print_nibble(byte & 15);
-        // } else if (i == 0) {
-        //     uart_print_nibble(byte >> 4);
-        //     uart_print_nibble(byte & 15);
-        //     uart_tx(' ');
-        // } else if (i == 6) {
-        //     uart_tx(' ');
-        //     uart_print_nibble(byte >> 4);
-        //     uart_print_nibble(byte & 15);
-        // }
+    for (uint8_t i = 0; i < 7; ++i) {
+        uint8_t byte = i2c_read(i != 6);
         *((uint8_t*)&aht20 + i) = byte;
     }
     i2c_stop();
