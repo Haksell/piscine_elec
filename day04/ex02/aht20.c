@@ -37,14 +37,11 @@ void aht20_init() {
     }
 }
 
-static bool crc(t_aht20 aht20) {
+static bool checksum(t_aht20 aht20) {
     uint8_t c = 0xff;
     for (uint8_t i = 0; i < AHT20_CRC; ++i) {
         c ^= aht20[i];
-        for (uint8_t j = 0; j < 8; ++j) {
-            if (c & 0x80) c = c << 1 ^ 0x31;
-            else c = c << 1;
-        }
+        for (uint8_t j = 0; j < 8; ++j) c = c & 0x80 ? c << 1 ^ 0x31 : c << 1;
     }
     return c == aht20[AHT20_CRC];
 }
@@ -55,7 +52,7 @@ bool aht20_read_sensor(t_aht20 aht20) {
     for (uint8_t i = 0; i < AHT20_CRC; ++i) aht20[i] = i2c_read(I2C_ACK);
     aht20[AHT20_CRC] = i2c_read(I2C_NACK);
     i2c_stop();
-    return crc(aht20);
+    return checksum(aht20);
 }
 
 float aht20_get_temperature(t_aht20 aht20) {
