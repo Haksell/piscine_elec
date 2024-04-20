@@ -34,11 +34,9 @@ void i2c_write(uint8_t byte);
 uint8_t i2c_read(uint8_t ack);
 
 // aht20.c
-typedef struct {
-    uint8_t state;
-    uint8_t data[5];
-    uint8_t crc;
-} t_aht20;
+#define AHT20_BYTES 7
+#define AHT20_CRC (AHT20_BYTES - 1)
+typedef uint8_t t_aht20[AHT20_BYTES];
 
 #define AHT20_ADDRESS 0x38
 #define AHT20_BUSY 0x80
@@ -49,7 +47,7 @@ typedef struct {
 
 void aht20_init();
 uint8_t aht20_read_cmd();
-bool aht20_read_sensor(t_aht20* aht20);
 void aht20_trigger_measurement();
+bool aht20_read_sensor(t_aht20 aht20);
 float aht20_get_temperature(t_aht20 aht20);
 float aht20_get_humidity(t_aht20 aht20);

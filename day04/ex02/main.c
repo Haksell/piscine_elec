@@ -32,7 +32,7 @@ int main() {
         aht20_trigger_measurement();
         _delay_ms(AHT20_MEASURE_DELAY);
         if (aht20_read_cmd() & AHT20_BUSY) uart_printstrln("AHT20 busy");
-        else if (aht20_read_sensor(&aht20)) weather_report(aht20);
+        else if (aht20_read_sensor(aht20)) weather_report(aht20);
         else uart_printstrln("CRC failure");
         _delay_ms(1000);
     }
