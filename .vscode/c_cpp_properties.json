@@ -8,7 +8,13 @@
             "cStandard": "gnu11",
             "cppStandard": "gnu++14",
             "intelliSenseMode": "linux-gcc-x64",
-            "compilerArgs": ["-mmcu=atmega328p", "-DF_CPU=16000000UL", "-DF_SCL=100000UL", "-DUART_BAUDRATE=115200", "-Os"]
+            "compilerArgs": [
+                "-mmcu=atmega328p",
+                "-DF_CPU=16000000UL",
+                "-DI2C_F=100000UL",
+                "-DUART_BAUDRATE=115200",
+                "-Os"
+            ]
         }
     ],
     "version": 4
