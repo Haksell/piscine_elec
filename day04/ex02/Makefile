@@ -1,5 +1,6 @@
 MCU := atmega328p
 TARGET := main
+HEADERS := $(wildcard *.h)
 SRC := $(wildcard *.c)
 OBJ := $(SRC:.c=.o)
 HEX := $(TARGET).hex
@@ -32,7 +33,7 @@ $(HEX): $(BIN)
 $(BIN): $(OBJ)
 	$(CC) $(CFLAGS) -o $@ $^
 
-%.o: %.c main.h
+%.o: %.c $(HEADERS)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 flash: $(HEX) killscreen
