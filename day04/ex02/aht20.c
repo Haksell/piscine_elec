@@ -21,7 +21,7 @@ static void aht20_send_cmd(uint8_t cmd) {
 static uint8_t aht20_read_cmd() {
     i2c_start();
     i2c_write(AHT20_ADDRESS << 1 | I2C_READ);
-    uint8_t read = i2c_read(I2C_NACK);
+    uint8_t read = i2c_read();
     i2c_stop();
     return read;
 }
