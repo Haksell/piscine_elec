@@ -18,8 +18,14 @@ typedef uint8_t t_aht20[AHT20_BYTES];
 #define AHT20_DELAY 30
 #define AHT20_MEASURE_DELAY 80
 
+typedef enum {
+    AHT20_SENSOR_SUCCESS,
+    AHT20_SENSOR_CRC_FAIL,
+    AHT20_SENSOR_BUSY
+} aht20_sensor_result_t;
+
 void aht20_init();
 void aht20_trigger_measurement();
-bool aht20_read_sensor(t_aht20 aht20);
+aht20_sensor_result_t aht20_read_sensor(t_aht20 aht20);
 float aht20_get_temperature(t_aht20 aht20);
 float aht20_get_humidity(t_aht20 aht20);

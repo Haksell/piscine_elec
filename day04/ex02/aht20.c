@@ -48,13 +48,14 @@ static bool checksum(t_aht20 aht20) {
     return c == aht20[AHT20_CRC];
 }
 
-bool aht20_read_sensor(t_aht20 aht20) {
+aht20_sensor_result_t aht20_read_sensor(t_aht20 aht20) {
     i2c_start();
     i2c_write(AHT20_ADDRESS << 1 | I2C_READ);
     for (uint8_t i = 0; i < AHT20_CRC; ++i) aht20[i] = i2c_read_ack();
     aht20[AHT20_CRC] = i2c_read();
     i2c_stop();
-    return checksum(aht20);
+    if (!checksum(aht20)) return AHT20_SENSOR_CRC_FAIL;
+    return aht20[AHT20_STATE] & AHT20_BUSY ? AHT20_SENSOR_BUSY : AHT20_SENSOR_SUCCESS;
 }
 
 float aht20_get_temperature(t_aht20 aht20) {

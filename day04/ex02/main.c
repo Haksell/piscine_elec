@@ -31,9 +31,11 @@ int main() {
     while (true) {
         aht20_trigger_measurement();
         _delay_ms(AHT20_MEASURE_DELAY);
-        if (!aht20_read_sensor(aht20)) uart_printstrln("CRC failure");
-        else if (aht20[AHT20_STATE] & AHT20_BUSY) uart_printstrln("AHT20 busy");
-        else weather_report(aht20);
+        switch (aht20_read_sensor(aht20)) {
+            case AHT20_SENSOR_SUCCESS: weather_report(aht20); break;
+            case AHT20_SENSOR_BUSY: uart_printstrln("AHT20 busy"); break;
+            case AHT20_SENSOR_CRC_FAIL: uart_printstrln("CRC failure"); break;
+        }
         _delay_ms(1000);
     }
 }
