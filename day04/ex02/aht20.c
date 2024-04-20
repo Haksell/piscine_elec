@@ -2,8 +2,6 @@
 
 #define FLOAT_SHIFT_20 0.00000095367431640625
 
-aht20_t aht20;
-
 static void aht20_send_full_command(uint8_t cmd, uint8_t param1, uint8_t param2) {
     i2c_start();
     i2c_write(AHT20_ADDRESS << 1 | I2C_WRITE);
@@ -54,25 +52,25 @@ static uint8_t crc(uint8_t* data, uint8_t len) {
     return c;
 }
 
-bool aht20_read_sensor() {
+bool aht20_read_sensor(aht20_t* aht20) {
     i2c_start();
     i2c_write(AHT20_ADDRESS << 1 | I2C_READ);
     for (uint8_t i = 0; i < 7; ++i) {
         uint8_t byte = i2c_read(i == 6 ? I2C_NACK : I2C_ACK);
-        *((uint8_t*)&aht20 + i) = byte;
+        *((uint8_t*)aht20 + i) = byte;
     }
     i2c_stop();
 
-    return crc((uint8_t*)&aht20, 6) == aht20.crc;
+    return crc((uint8_t*)aht20, 6) == aht20->crc;
 }
 
-float aht20_get_temperature() {
+float aht20_get_temperature(aht20_t aht20) {
     uint32_t st = (((int32_t)aht20.data[2] & 0x0f) << 16) | ((int32_t)aht20.data[3] << 8) |
                   (aht20.data[4]);
     return st * FLOAT_SHIFT_20 * 200.0 - 50.0;
 }
 
-float aht20_get_humidity() {
+float aht20_get_humidity(aht20_t aht20) {
     uint32_t srh = ((int32_t)aht20.data[0] << 12) | ((int32_t)aht20.data[1] << 4) |
                    ((aht20.data[2] & 0xf0) >> 4);
     return srh * FLOAT_SHIFT_20;
