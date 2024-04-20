@@ -1,7 +1,6 @@
 #include "main.h"
 
 aht20_t aht20;
-uint8_t triggered = 0;
 
 static void aht20_send_full_command(uint8_t cmd, uint8_t param1, uint8_t param2) {
     i2c_start();
@@ -80,7 +79,6 @@ static float aht20_get_humidity() {
 
 void aht20_trigger_measurement() {
     aht20_send_full_command(AHT20_MEASURE_CMD, AHT20_MEASURE_PARAM_1, AHT20_MEASURE_PARAM_2);
-    triggered = 1;
 }
 
 void weather_report() {
@@ -100,14 +98,11 @@ void weather_report() {
 }
 
 void aht20_event() {
-    if (!triggered) return;
-
     if (!(aht20_read_cmd() & 0x80)) {
         if (!aht20_read()) {
             uart_printstrln("CRC failure");
             return;
         }
         weather_report();
-        triggered = 0;
     }
 }
