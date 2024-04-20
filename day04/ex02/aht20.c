@@ -105,6 +105,7 @@ void weather_report(bool crc_valid) {
         float temp = aht20_get_temperature();
         float hum = aht20_get_humidity();
         uart_printstr("Temperature: ");
+        // dtostrf
         uart_putnbr(temp);
         uart_tx(',');
         uart_putnbr((uint32_t)(temp * 10) % 10);
