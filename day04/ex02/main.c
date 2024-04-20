@@ -2,14 +2,14 @@
 
 #define ROLLING_AVERAGE 3
 
-static float rolling_average(float* arr, int size) {
+static float rolling_average(float* arr, size_t size) {
     float res = 0.0;
-    for (int i = 0; i < size; ++i) res += arr[i];
+    for (size_t i = 0; i < size; ++i) res += arr[i];
     return res / size;
 }
 
-static void weather_report(aht20_t aht20) {
-    static uint32_t i = 0;
+static void weather_report(t_aht20 aht20) {
+    static size_t i = 0;
     static float temps[ROLLING_AVERAGE];
     static float hums[ROLLING_AVERAGE];
 
@@ -24,7 +24,7 @@ static void weather_report(aht20_t aht20) {
 }
 
 int main() {
-    aht20_t aht20;
+    t_aht20 aht20;
     uart_init();
     i2c_init();
     aht20_init();

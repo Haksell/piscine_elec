@@ -40,7 +40,7 @@ typedef struct {
     uint8_t state;
     uint8_t data[5];
     uint8_t crc;
-} aht20_t;
+} t_aht20;
 
 #define AHT20_ADDRESS 0x38
 #define AHT20_BUSY 0x80
@@ -51,7 +51,7 @@ typedef struct {
 
 void aht20_init();
 uint8_t aht20_read_cmd();
-bool aht20_read_sensor(aht20_t* aht20);
+bool aht20_read_sensor(t_aht20* aht20);
 void aht20_trigger_measurement();
-float aht20_get_temperature(aht20_t aht20);
-float aht20_get_humidity(aht20_t aht20);
+float aht20_get_temperature(t_aht20 aht20);
+float aht20_get_humidity(t_aht20 aht20);
