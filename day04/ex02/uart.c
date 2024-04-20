@@ -1,5 +1,7 @@
 #include "main.h"
 
+#define CRLF "\r\n"
+
 #define ROUND_DIV(dividend, divisor)                                                               \
     ({                                                                                             \
         typeof(divisor) _divisor = (divisor);                                                      \

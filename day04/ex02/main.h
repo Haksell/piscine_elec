@@ -11,8 +11,6 @@
 #define MAX(A, B) ((A > B) ? (A) : (B))
 
 // uart.c
-#define CRLF "\r\n"
-
 void uart_init();
 void uart_tx(char c);
 char uart_rx();

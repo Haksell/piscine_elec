@@ -32,8 +32,7 @@ void aht20_init() {
     _delay_ms(AHT20_DELAY);
 
     aht20_send_cmd(0x71);
-    uint8_t status_word = aht20_read_cmd();
-    if (!(status_word & 3)) {
+    if (!(aht20_read_cmd() & 3)) {
         aht20_send_full_command(0xBE, 0x08, 0x00);
         _delay_ms(AHT20_AFTER_POWER_ON_DELAY);
     }
