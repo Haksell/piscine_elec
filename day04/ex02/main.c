@@ -2,17 +2,24 @@
 
 #define ROLLING_AVERAGE 3
 
+static float rolling_average(float* arr, int size) {
+    float res = 0.0;
+    for (int i = 0; i < size; ++i) res += arr[i];
+    return res / size;
+}
+
 static void weather_report(aht20_t aht20) {
-    // static uint32_t i = 0;
-    // static float temps[ROLLING_AVERAGE];
-    // static float hums[ROLLING_AVERAGE];
-    // TODO: avg of last 3
-    float temp = aht20_get_temperature(aht20);
-    float hum = aht20_get_humidity(aht20);
+    static uint32_t i = 0;
+    static float temps[ROLLING_AVERAGE];
+    static float hums[ROLLING_AVERAGE];
+
+    temps[i % ROLLING_AVERAGE] = aht20_get_temperature(aht20);
+    hums[i % ROLLING_AVERAGE] = aht20_get_humidity(aht20);
+    ++i;
     uart_printstr("Temperature: ");
-    uart_printfloat(temp);
+    uart_printfloat(rolling_average(temps, MIN(i, ROLLING_AVERAGE)));
     uart_printstr("°C, Humidity: ");
-    uart_printfloat(hum * 100);
+    uart_printfloat(rolling_average(temps, MIN(i, ROLLING_AVERAGE)) * 100);
     uart_printstrln("%");
 }
 
