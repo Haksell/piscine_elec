@@ -1,8 +1,5 @@
 #include "main.h"
 
-// TODO: uart_printf
-// TODO: rename functions putchar... like libft
-
 #define ROUND_DIV(dividend, divisor)                                                               \
     ({                                                                                             \
         typeof(divisor) _divisor = (divisor);                                                      \
