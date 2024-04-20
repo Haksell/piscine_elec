@@ -47,5 +47,8 @@ typedef struct {
 #define AHT20_MEASURE_DELAY 80
 
 void aht20_init();
+uint8_t aht20_read_cmd();
+bool aht20_read_sensor();
 void aht20_trigger_measurement();
-void aht20_process_measurement();
+float aht20_get_temperature();
+float aht20_get_humidity();

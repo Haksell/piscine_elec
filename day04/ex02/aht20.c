@@ -20,7 +20,7 @@ static void aht20_send_cmd(uint8_t cmd) {
     i2c_stop();
 }
 
-static uint8_t aht20_read_cmd() {
+uint8_t aht20_read_cmd() {
     i2c_start();
     i2c_write(AHT20_ADDRESS << 1 | I2C_READ);
     uint8_t read = i2c_read(I2C_NACK);
@@ -54,7 +54,7 @@ static uint8_t crc(uint8_t* data, uint8_t len) {
     return c;
 }
 
-static bool aht20_read_sensor() {
+bool aht20_read_sensor() {
     i2c_start();
     i2c_write(AHT20_ADDRESS << 1 | I2C_READ);
     for (uint8_t i = 0; i < 7; ++i) {
@@ -66,33 +66,16 @@ static bool aht20_read_sensor() {
     return crc((uint8_t*)&aht20, 6) == aht20.crc;
 }
 
-static float aht20_get_temperature() {
+float aht20_get_temperature() {
     uint32_t st = (((int32_t)aht20.data[2] & 0x0f) << 16) | ((int32_t)aht20.data[3] << 8) |
                   (aht20.data[4]);
     return st * FLOAT_SHIFT_20 * 200.0 - 50.0;
 }
 
-static float aht20_get_humidity() {
+float aht20_get_humidity() {
     uint32_t srh = ((int32_t)aht20.data[0] << 12) | ((int32_t)aht20.data[1] << 4) |
                    ((aht20.data[2] & 0xf0) >> 4);
     return srh * FLOAT_SHIFT_20;
 }
 
 void aht20_trigger_measurement() { aht20_send_full_command(0xAC, 0x33, 0x00); }
-
-static void weather_report() {
-    // TODO: avg of last 3
-    float temp = aht20_get_temperature();
-    float hum = aht20_get_humidity();
-    uart_printstr("Temperature: ");
-    uart_printfloat(temp);
-    uart_printstr("°C, Humidity: ");
-    uart_printfloat(hum * 100);
-    uart_printstrln("%");
-}
-
-void aht20_process_measurement() {
-    if (aht20_read_cmd() & AHT20_BUSY) uart_printstrln("AHT20 busy");
-    else if (aht20_read_sensor()) weather_report();
-    else uart_printstrln("CRC failure");
-}
