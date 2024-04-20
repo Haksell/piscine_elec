@@ -1,5 +1,7 @@
 #include "main.h"
 
+#define FLOAT_SHIFT_20 0.00000095367431640625
+
 aht20_t aht20;
 
 static void aht20_send_full_command(uint8_t cmd, uint8_t param1, uint8_t param2) {
@@ -52,11 +54,11 @@ static uint8_t crc(uint8_t* data, uint8_t len) {
     return c;
 }
 
-static bool aht20_read() {
+static bool aht20_read_sensor() {
     i2c_start();
     i2c_write(AHT20_ADDRESS << 1 | I2C_READ);
     for (uint8_t i = 0; i < 7; ++i) {
-        uint8_t byte = i2c_read(i != 6);
+        uint8_t byte = i2c_read(i == 6 ? I2C_NACK : I2C_ACK);
         *((uint8_t*)&aht20 + i) = byte;
     }
     i2c_stop();
@@ -67,35 +69,30 @@ static bool aht20_read() {
 static float aht20_get_temperature() {
     uint32_t st = (((int32_t)aht20.data[2] & 0x0f) << 16) | ((int32_t)aht20.data[3] << 8) |
                   (aht20.data[4]);
-    return (st / 1048576.0) * 200.0 - 50.0;
+    return st * FLOAT_SHIFT_20 * 200.0 - 50.0;
 }
 
 static float aht20_get_humidity() {
     uint32_t srh = ((int32_t)aht20.data[0] << 12) | ((int32_t)aht20.data[1] << 4) |
                    ((aht20.data[2] & 0xf0) >> 4);
-    return srh / 1048576.0;
+    return srh * FLOAT_SHIFT_20;
 }
 
 void aht20_trigger_measurement() { aht20_send_full_command(0xAC, 0x33, 0x00); }
 
-void weather_report() {
+static void weather_report() {
     // TODO: avg of last 3
     float temp = aht20_get_temperature();
     float hum = aht20_get_humidity();
     uart_printstr("Temperature: ");
-    // dtostrf
-    uart_putnbr(temp);
-    uart_tx('.');
-    uart_putnbr((uint32_t)(temp * 10) % 10);
+    uart_printfloat(temp);
     uart_printstr("°C, Humidity: ");
-    uart_putnbr(hum * 100);
-    uart_tx('.');
-    uart_putnbr((uint32_t)(hum * 1000) % 10);
+    uart_printfloat(hum * 100);
     uart_printstrln("%");
 }
 
 void aht20_process_measurement() {
-    if (aht20_read_cmd() & 0x80) uart_printstrln("AHT20 busy");
-    else if (aht20_read()) weather_report();
+    if (aht20_read_cmd() & AHT20_BUSY) uart_printstrln("AHT20 busy");
+    else if (aht20_read_sensor()) weather_report();
     else uart_printstrln("CRC failure");
 }

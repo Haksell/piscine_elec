@@ -3,6 +3,12 @@
 // TODO: uart_printf
 // TODO: rename functions putchar... like libft
 
+#define ROUND_DIV(dividend, divisor)                                                               \
+    ({                                                                                             \
+        typeof(divisor) _divisor = (divisor);                                                      \
+        ((dividend) + (_divisor >> 1)) / _divisor;                                                 \
+    })
+
 void uart_init() {
     UBRR0 = ROUND_DIV(F_CPU, 16 * UART_BAUDRATE) - 1;
     UCSR0B |= 1 << RXEN0 | 1 << TXEN0;
@@ -24,6 +30,12 @@ void uart_putnbr(uint32_t n) {
         uart_putnbr(n / 10);
         uart_tx(n % 10 + '0');
     }
+}
+
+void uart_printfloat(float x) {
+    char s[16];
+    dtostrf(x, 0, 1, s);
+    uart_printstr(s);
 }
 
 void uart_printstr(const char* str) {
