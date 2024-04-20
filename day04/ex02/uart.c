@@ -1,7 +1,5 @@
 #include "main.h"
 
-#define CRLF "\r\n"
-
 #define ROUND_DIV(dividend, divisor)                                                               \
     ({                                                                                             \
         typeof(divisor) _divisor = (divisor);                                                      \
@@ -31,9 +29,9 @@ void uart_putnbr(uint32_t n) {
     }
 }
 
-void uart_printfloat(float x) {
+void uart_printfloat(float x, int precision) {
     char s[16];
-    dtostrf(x, 0, 1, s);
+    dtostrf(x, 0, precision, s);
     uart_printstr(s);
 }
 
@@ -43,7 +41,7 @@ void uart_printstr(const char* str) {
 
 void uart_printstrln(const char* str) {
     uart_printstr(str);
-    uart_printstr(CRLF);
+    uart_printstr("\r\n");
 }
 
 void uart_print_nibble(uint8_t byte) { uart_tx(byte < 10 ? byte + '0' : byte + 55); }

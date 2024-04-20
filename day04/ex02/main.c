@@ -17,9 +17,9 @@ static void weather_report(t_aht20 aht20) {
     hums[i % ROLLING_AVERAGE] = aht20_get_humidity(aht20);
     ++i;
     uart_printstr("Temperature: ");
-    uart_printfloat(rolling_average(temps, MIN(i, ROLLING_AVERAGE)));
+    uart_printfloat(rolling_average(temps, MIN(i, ROLLING_AVERAGE)), 1);
     uart_printstr("°C, Humidity: ");
-    uart_printfloat(rolling_average(hums, MIN(i, ROLLING_AVERAGE)) * 100);
+    uart_printfloat(rolling_average(hums, MIN(i, ROLLING_AVERAGE)) * 100, 0);
     uart_printstrln("%");
 }
 
