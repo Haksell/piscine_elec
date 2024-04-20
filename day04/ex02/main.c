@@ -19,7 +19,7 @@ static void weather_report(aht20_t aht20) {
     uart_printstr("Temperature: ");
     uart_printfloat(rolling_average(temps, MIN(i, ROLLING_AVERAGE)));
     uart_printstr("°C, Humidity: ");
-    uart_printfloat(rolling_average(temps, MIN(i, ROLLING_AVERAGE)) * 100);
+    uart_printfloat(rolling_average(hums, MIN(i, ROLLING_AVERAGE)) * 100);
     uart_printstrln("%");
 }
 

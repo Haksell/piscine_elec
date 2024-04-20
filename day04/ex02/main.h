@@ -36,6 +36,7 @@ void i2c_write(uint8_t byte);
 uint8_t i2c_read(uint8_t ack);
 
 // aht20.c
+// typedef aht20_t aht8_t;
 typedef struct {
     uint8_t state;
     uint8_t data[5];
