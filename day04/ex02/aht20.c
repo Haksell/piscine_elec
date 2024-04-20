@@ -83,30 +83,31 @@ void aht20_trigger_measurement() {
     triggered = 1;
 }
 
-void weather_report(bool crc_valid) {
-    if (crc_valid) {
-        // TODO: avg of last 3
-        float temp = aht20_get_temperature();
-        float hum = aht20_get_humidity();
-        uart_printstr("Temperature: ");
-        // dtostrf
-        uart_putnbr(temp);
-        uart_tx(',');
-        uart_putnbr((uint32_t)(temp * 10) % 10);
-        uart_printstr("°C, Humidity: ");
-        uart_putnbr(hum * 100);
-        uart_tx(',');
-        uart_putnbr((uint32_t)(hum * 1000) % 10);
-        uart_printstrln("%");
-    } else uart_printstrln(" crc fail");
+void weather_report() {
+    // TODO: avg of last 3
+    float temp = aht20_get_temperature();
+    float hum = aht20_get_humidity();
+    uart_printstr("Temperature: ");
+    // dtostrf
+    uart_putnbr(temp);
+    uart_tx(',');
+    uart_putnbr((uint32_t)(temp * 10) % 10);
+    uart_printstr("°C, Humidity: ");
+    uart_putnbr(hum * 100);
+    uart_tx(',');
+    uart_putnbr((uint32_t)(hum * 1000) % 10);
+    uart_printstrln("%");
 }
 
 void aht20_event() {
     if (!triggered) return;
 
     if (!(aht20_read_cmd() & 0x80)) {
-        bool crc_success = aht20_read();
-        weather_report(crc_success);
+        if (!aht20_read()) {
+            uart_printstrln("CRC failure");
+            return;
+        }
+        weather_report();
         triggered = 0;
     }
 }
