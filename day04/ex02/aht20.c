@@ -30,14 +30,14 @@ void aht20_init() {
     _delay_ms(AHT20_AFTER_POWER_ON_DELAY);
     aht20_send_cmd(0xBA);
     _delay_ms(AHT20_DELAY);
-    aht20_send_cmd(0x71);
+    aht20_send_cmd(AHT20_GET_STATUS);
     if (!(aht20_read_cmd() & 3)) {
         aht20_send_full_command(0xBE, 0x08, 0x00);
         _delay_ms(AHT20_AFTER_POWER_ON_DELAY);
     }
 }
 
-static uint8_t crc(t_aht20 aht20) {
+static bool crc(t_aht20 aht20) {
     uint8_t c = 0xff;
     for (uint8_t i = 0; i < AHT20_CRC; ++i) {
         c ^= aht20[i];
@@ -46,7 +46,7 @@ static uint8_t crc(t_aht20 aht20) {
             else c = c << 1;
         }
     }
-    return c;
+    return c == aht20[AHT20_CRC];
 }
 
 bool aht20_read_sensor(t_aht20 aht20) {
@@ -55,7 +55,7 @@ bool aht20_read_sensor(t_aht20 aht20) {
     for (uint8_t i = 0; i < AHT20_CRC; ++i) aht20[i] = i2c_read(I2C_ACK);
     aht20[AHT20_CRC] = i2c_read(I2C_NACK);
     i2c_stop();
-    return crc(aht20) == aht20[AHT20_CRC];
+    return crc(aht20);
 }
 
 float aht20_get_temperature(t_aht20 aht20) {
