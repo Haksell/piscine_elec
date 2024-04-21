@@ -40,7 +40,7 @@ void aht20_init() {
 }
 
 static bool checksum(t_aht20 aht20) {
-    uint8_t c = 0xff;
+    uint8_t c = 0xFF;
     for (uint8_t i = 0; i < AHT20_CRC; ++i) {
         c ^= aht20[i];
         for (uint8_t j = 0; j < 8; ++j) c = c & 0x80 ? c << 1 ^ 0x31 : c << 1;
@@ -59,7 +59,7 @@ aht20_sensor_result_t aht20_read_sensor(t_aht20 aht20) {
 }
 
 float aht20_get_temperature(t_aht20 aht20) {
-    uint32_t st = ((int32_t)aht20[3] & 0x0f) << 16 | (int32_t)aht20[4] << 8 | aht20[5];
+    uint32_t st = ((int32_t)aht20[3] & 0x0F) << 16 | (int32_t)aht20[4] << 8 | aht20[5];
     return st * FLOAT_SHIFT_20 * 200.0 - 50.0;
 }
 
