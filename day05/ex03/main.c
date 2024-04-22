@@ -13,16 +13,20 @@ static void blockdump() {
     eeprom_size_t addr = EEPROM_MAGIC_BYTES;
     while (addr < EEPROM_MAX_ADDR) {
         eeprom_size_t current_id = EEPROMALLOC_ID(addr);
+        bool is_free = current_id == 0;
         eeprom_size_t current_capacity = EEPROMALLOC_CAPACITY(addr);
         eeprom_size_t current_length = EEPROMALLOC_LENGTH(addr);
         uart_tx('[');
-        uart_putnbr(current_id);
-        uart_putstr(": ");
-        if (current_id != 0) {
+        if (is_free) {
+            uart_putnbr(current_capacity);
+            uart_putstr("...");
+        } else {
+            uart_putnbr(current_id);
+            uart_putstr(": ");
             uart_putnbr(current_length);
             uart_tx('/');
+            uart_putnbr(current_capacity);
         }
-        uart_putnbr(current_capacity);
         uart_putstr("] ");
         addr += 6 + current_capacity;
     }
@@ -57,10 +61,12 @@ static void uart_readline(char* buffer, size_t buffer_size) {
 }
 
 static bool atoi_id(char* str, size_t* id, size_t* i) {
-    *id = 0;
-    for (*i = 0; ft_isdigit(str[*i]); ++*i) {
-        *id = 10 * *id + str[*i] - '0';
-        if (*id > UINT16_MAX) return false;
+    static const size_t limit_init = SIZE_MAX / 10;
+    static const size_t limit_last = SIZE_MAX % 10;
+    for (*id = 0, *i = 0; ft_isdigit(str[*i]); ++*i) {
+        size_t digit = str[*i] - '0';
+        if (*id > limit_init || (*id == limit_init && digit > limit_last)) return false;
+        *id = 10 * *id + digit;
     }
     if (*id == 0) return false;
     if (str[*i] == '\0') return true;
@@ -91,15 +97,14 @@ int main() {
             continue;
         }
         if (is_read) {
-            bool success = eepromalloc_read(id, buffer, EEPROM_BYTES);
-            if (success) {
+            if (eepromalloc_read(id, buffer, EEPROM_BYTES)) {
                 uart_tx('[');
                 uart_putstr(buffer);
                 uart_putstrln("]");
             } else uart_putstrln("eepromalloc_read: id not found");
         } else if (is_free) {
             if (eepromalloc_free(id)) memorydump();
-            else uart_putstrln("eepromalloc_write: id not found");
+            else uart_putstrln("eepromalloc_free: id not found");
         } else {
             char* value = buffer + i;
             if (eepromalloc_write(id, value, ft_strlen(value))) memorydump();
