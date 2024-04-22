@@ -3,14 +3,12 @@
 static void print_status() {
     uart_printstr("Status: ");
     switch (TW_STATUS) {
-
         case TW_START: uart_printstrln("TW_START"); break;
         case TW_REP_START: uart_printstrln("TW_REP_START"); break;
         case TW_MT_SLA_ACK: uart_printstrln("TW_MT_SLA_ACK"); break;
         case TW_MT_SLA_NACK: uart_printstrln("TW_MT_SLA_NACK"); break;
         case TW_MT_DATA_ACK: uart_printstrln("TW_MT_DATA_ACK"); break;
         case TW_MT_DATA_NACK: uart_printstrln("TW_MT_DATA_NACK"); break;
-        case 0x38: uart_printstrln("Arbitration Lost"); break;
         case TW_MR_SLA_ACK: uart_printstrln("TW_MR_SLA_ACK"); break;
         case TW_MR_SLA_NACK: uart_printstrln("TW_MR_SLA_NACK"); break;
         case TW_MR_DATA_ACK: uart_printstrln("TW_MR_DATA_ACK"); break;
@@ -31,6 +29,7 @@ static void print_status() {
         case TW_SR_STOP: uart_printstrln("TW_SR_STOP"); break;
         case TW_NO_INFO: uart_printstrln("TW_NO_INFO"); break;
         case TW_BUS_ERROR: uart_printstrln("TW_BUS_ERROR"); break;
+        case 0x38: uart_printstrln("Arbitration Lost"); break;
         default:
             uart_printstr("Unknown status: ");
             uart_putnbr(TW_STATUS);
