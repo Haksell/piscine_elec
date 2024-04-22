@@ -15,9 +15,9 @@
 typedef uint16_t eeprom_size_t;
 typedef int16_t eeprom_ssize_t;
 
-#define CURRENT_ID(ADDR) (eeprom_read_word((uint16_t*)(ADDR)))
-#define CURRENT_CAPACITY(ADDR) (eeprom_read_word((uint16_t*)((ADDR) + 2)))
-#define CURRENT_LENGTH(ADDR) (eeprom_read_word((uint16_t*)((ADDR) + 4)))
+#define EEPROMALLOC_ID(ADDR) (eeprom_read_word((uint16_t*)(ADDR)))
+#define EEPROMALLOC_CAPACITY(ADDR) (eeprom_read_word((uint16_t*)((ADDR) + 2)))
+#define EEPROMALLOC_LENGTH(ADDR) (eeprom_read_word((uint16_t*)((ADDR) + 4)))
 
 bool eepromalloc_init();
 bool eepromalloc_write(eeprom_size_t id, void* buffer, eeprom_size_t length);

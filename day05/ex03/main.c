@@ -12,9 +12,9 @@ static void hexdump() {
 static void blockdump() {
     eeprom_size_t addr = EEPROM_MAGIC_BYTES;
     while (addr < EEPROM_MAX_ADDR) {
-        eeprom_size_t current_id = CURRENT_ID(addr);
-        eeprom_size_t current_capacity = CURRENT_CAPACITY(addr);
-        eeprom_size_t current_length = CURRENT_LENGTH(addr);
+        eeprom_size_t current_id = EEPROMALLOC_ID(addr);
+        eeprom_size_t current_capacity = EEPROMALLOC_CAPACITY(addr);
+        eeprom_size_t current_length = EEPROMALLOC_LENGTH(addr);
         uart_tx('[');
         uart_putnbr(current_id);
         uart_putstr(": ");
