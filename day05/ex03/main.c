@@ -10,20 +10,20 @@ static void hexdump() {
 }
 
 static void blockdump() {
-    static eeprom_size_t limit = EEPROM_BYTES - 6;
     eeprom_size_t addr = EEPROM_MAGIC_BYTES;
-    while (addr < limit) {
+    while (addr < EEPROM_MAX_ADDR) {
         eeprom_size_t current_id = eeprom_read_word((uint16_t*)addr);
         eeprom_size_t current_capacity = eeprom_read_word((uint16_t*)(addr + 2));
         eeprom_size_t current_length = eeprom_read_word((uint16_t*)(addr + 4));
+        uart_tx('[');
+        uart_putnbr(current_id);
+        uart_putstr(": ");
         if (current_id != 0) {
-            uart_putnbr(current_id);
-            uart_tx(' ');
-            uart_putnbr(current_capacity);
-            uart_tx(' ');
             uart_putnbr(current_length);
-            uart_putstr("   ");
+            uart_tx('/');
         }
+        uart_putnbr(current_capacity);
+        uart_putstr("] ");
         addr += 6 + current_capacity;
     }
     uart_newline();
@@ -79,15 +79,27 @@ int main() {
         char buffer[EEPROM_BYTES];
         uart_readline(buffer, EEPROM_BYTES);
         if (buffer[0] == '\0') continue;
+        bool is_read = buffer[0] == '?';
+        bool is_free = buffer[0] == '!';
         size_t id, i;
-        if (!atoi_id(buffer, &id, &i)) {
+        if (!atoi_id(buffer + (is_read || is_free), &id, &i)) {
             uart_putstrln("Invalid id.");
             continue;
         }
-        char* value = buffer + i;
-        uart_putstrln(
-            eepromalloc_write(id, value, ft_strlen(value)) ? "Write successful." : "Write failed."
-        );
-        memorydump();
+        if (is_read) {
+            bool success = eepromalloc_read(id, buffer, EEPROM_BYTES);
+            if (success) {
+                uart_tx('[');
+                uart_putstr(buffer);
+                uart_putstrln("]");
+            } else uart_putstrln("eepromalloc_read: id not found");
+        } else if (is_free) {
+            if (eepromalloc_free(id)) memorydump();
+            else uart_putstrln("eepromalloc_write: id not found");
+        } else {
+            char* value = buffer + i;
+            if (eepromalloc_write(id, value, ft_strlen(value))) memorydump();
+            else uart_putstrln("eepromalloc_write: somehow failed");
+        }
     }
 }

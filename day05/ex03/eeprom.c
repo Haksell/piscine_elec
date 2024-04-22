@@ -1,8 +1,5 @@
 #include "main.h"
 
-#define EEPROM_MAGIC 0x07CB // TODO: 0x07CE
-#define EEPROM_FREED 0xFF
-
 bool eepromalloc_init() {
     if (eeprom_read_word((uint16_t*)0) == EEPROM_MAGIC) return false;
     eeprom_update_word((uint16_t*)0, EEPROM_MAGIC); // magic
@@ -12,9 +9,8 @@ bool eepromalloc_init() {
 }
 
 bool eepromalloc_write(eeprom_size_t id, void* buffer, eeprom_size_t length) {
-    static eeprom_size_t limit = EEPROM_BYTES - 6;
     eeprom_size_t addr = EEPROM_MAGIC_BYTES;
-    while (addr < limit) {
+    while (addr < EEPROM_MAX_ADDR) {
         eeprom_size_t current_id = eeprom_read_word((uint16_t*)addr);
         eeprom_size_t current_capacity = eeprom_read_word((uint16_t*)(addr + 2));
         if (current_id == 0) {
@@ -54,8 +50,35 @@ bool eepromalloc_write(eeprom_size_t id, void* buffer, eeprom_size_t length) {
     return false;
 }
 
-// bool eepromalloc_read(eeprom_size_t id, void* buffer, eeprom_size_t length) {
+bool eepromalloc_read(eeprom_size_t id, void* buffer, eeprom_size_t length) {
+    eeprom_size_t addr = EEPROM_MAGIC_BYTES;
+    while (addr < EEPROM_MAX_ADDR) {
+        eeprom_size_t current_id = eeprom_read_word((uint16_t*)addr);
+        eeprom_size_t current_capacity = eeprom_read_word((uint16_t*)(addr + 2));
+        eeprom_size_t current_length = eeprom_read_word((uint16_t*)(addr + 4));
+        if (current_id == id) {
+            if (current_length < length) {
+                eeprom_read_block(buffer, (void*)(addr + 6), current_length);
+                ((char*)buffer)[current_length] = '\0';
+                return true;
+            } else return false;
+        }
+        addr += 6 + current_capacity;
+    }
+    return false;
+}
 
-// }
-
-// bool eepromalloc_free(eeprom_size_t id);
+bool eepromalloc_free(eeprom_size_t id) {
+    // TODO: unfragment
+    eeprom_size_t addr = EEPROM_MAGIC_BYTES;
+    while (addr < EEPROM_MAX_ADDR) {
+        eeprom_size_t current_id = eeprom_read_word((uint16_t*)addr);
+        eeprom_size_t current_capacity = eeprom_read_word((uint16_t*)(addr + 2));
+        if (current_id == id) {
+            eeprom_update_word((uint16_t*)addr, 0);
+            return true;
+        }
+        addr += 6 + current_capacity;
+    }
+    return false;
+}
