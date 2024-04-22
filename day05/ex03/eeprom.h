@@ -9,7 +9,7 @@
 #endif
 
 #define EEPROM_MAGIC_BYTES 2
-#define EEPROM_MAGIC 0x2000
+#define EEPROM_MAGIC 0xce07
 #define EEPROM_MAX_ADDR (EEPROM_BYTES - 6)
 
 typedef uint16_t eeprom_size_t;
