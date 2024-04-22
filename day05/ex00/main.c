@@ -3,7 +3,7 @@
 #include <stdbool.h>
 
 #define DEBOUNCE_ITERATIONS 100
-#define COUNTER_ADDR ((uint8_t*)0x42)
+#define COUNTER_ADDR ((uint8_t*)0x234)
 
 int main() {
     DDRB = 0b10111;

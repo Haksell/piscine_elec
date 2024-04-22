@@ -4,7 +4,7 @@
 
 #define DEBOUNCE_ITERATIONS 100
 
-#define COUNTERS_ADDR ((uint8_t*)0x42)
+#define COUNTERS_ADDR ((uint8_t*)0x345)
 #define COUNTER_ADDR(SELECTED) (COUNTERS_ADDR + 1 + SELECTED)
 #define NUM_COUNTERS 4
 

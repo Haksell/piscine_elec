@@ -13,7 +13,7 @@ UART_BAUDRATE := 115200
 DEFINES := -DF_CPU=$(F_CPU) -DI2C_F=$(I2C_F) -DUART_BAUDRATE=$(UART_BAUDRATE)
 
 CC := avr-gcc
-CFLAGS := -mmcu=$(MCU) $(DEFINES) -Os
+CFLAGS := -Wall -Wextra -Werror -mmcu=$(MCU) $(DEFINES) -Os
 
 all: hex flash
 
