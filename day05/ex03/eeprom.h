@@ -3,6 +3,7 @@
 #include "main.h"
 
 #define EEPROM_BYTES 64 // TODO: 1024 actually
+#define EEPROM_MAGIC_BYTES 2
 
 typedef uint16_t eeprom_size_t;
 typedef int16_t eeprom_ssize_t;
