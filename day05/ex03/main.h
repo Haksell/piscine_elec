@@ -4,7 +4,7 @@
 #include <avr/io.h>
 #include <stdbool.h>
 
-#define DEBUG true
+#define DEBUG false
 
 #define ROUND_DIV(dividend, divisor)                                                               \
     ({                                                                                             \

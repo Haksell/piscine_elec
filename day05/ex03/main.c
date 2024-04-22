@@ -79,6 +79,10 @@ int main() {
         char buffer[EEPROM_BYTES];
         uart_readline(buffer, EEPROM_BYTES);
         if (buffer[0] == '\0') continue;
+        if (buffer[0] == '.' && buffer[1] == '\0') {
+            memorydump();
+            continue;
+        }
         bool is_read = buffer[0] == '?';
         bool is_free = buffer[0] == '!';
         size_t id, i;
