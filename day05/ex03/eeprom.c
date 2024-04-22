@@ -25,6 +25,17 @@ bool eepromalloc_write(size_t id, void* buffer, size_t length) {
                 eeprom_update_word((uint16_t*)(addr + 4), length);
                 for (size_t i = 0; i < length; ++i)
                     eeprom_update_byte((uint8_t*)(addr + i + 6), ((uint8_t*)buffer)[i]);
+                if (length + 6 <= current_capacity) {
+                    eeprom_update_word((uint16_t*)(addr + 2), length);
+                    size_t free_addr = addr + 6 + length;
+                    eeprom_update_word((uint16_t*)free_addr, 0);
+                    size_t free_capacity = current_capacity - 6 - length;
+                    size_t next_addr = free_addr + 6 + free_capacity;
+                    bool next_is_free = next_addr < EEPROM_MAX_ADDR &&
+                                        EEPROMALLOC_ID(next_addr) == 0;
+                    if (next_is_free) free_capacity += EEPROMALLOC_CAPACITY(next_addr) + 6;
+                    eeprom_update_word((uint16_t*)(addr + 8 + length), free_capacity);
+                }
                 return true;
             } else {
                 eepromalloc_free(id); // NOTE: frees even if realloc fails

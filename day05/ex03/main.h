@@ -3,6 +3,7 @@
 #include <avr/eeprom.h>
 #include <avr/io.h>
 #include <stdbool.h>
+#include <stddef.h>
 
 #define DEBUG false
 
