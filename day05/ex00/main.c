@@ -8,7 +8,7 @@
 int main() {
     DDRB |= 0b10111;
     DDRD &= ~(1 << PD2);
-    // eeprom_write_byte(COUNTER_ADDR, 0);
+    eeprom_write_byte(COUNTER_ADDR, 0);
     int8_t counterSW1 = -1;
     while (true) {
         counterSW1 = (PIND >> PD2) & 1 ? DEBOUNCE_ITERATIONS : counterSW1 - (counterSW1 >= 0);
