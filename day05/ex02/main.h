@@ -10,4 +10,5 @@
         ((dividend) + (_divisor >> 1)) / _divisor;                                                 \
     })
 
+#include "eeprom.h"
 #include "uart.h"
