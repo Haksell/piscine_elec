@@ -15,6 +15,15 @@ char uart_rx() {
     return UDR0;
 }
 
+void uart_putstr(const char* str) {
+    while (*str) uart_tx(*str++);
+}
+
+void uart_putstrln(const char* str) {
+    uart_putstr(str);
+    uart_putstr(CRLF);
+}
+
 void uart_putnbr(uint32_t n) {
     if (n < 10) uart_tx(n + '0');
     else {
@@ -23,25 +32,7 @@ void uart_putnbr(uint32_t n) {
     }
 }
 
-void uart_printfloat(float x, int precision) {
-    char s[16];
-    dtostrf(x, 0, precision, s);
-    uart_printstr(s);
-}
-
-void uart_printstr(const char* str) {
-    while (*str) uart_tx(*str++);
-}
-
-void uart_printstrln(const char* str) {
-    uart_printstr(str);
-    uart_printstr("\r\n");
-}
-
-void uart_print_nibble(uint8_t byte) { uart_tx(byte < 10 ? byte + '0' : byte + 55); }
-
-void print_hex_value(uint8_t byte) {
-    uart_print_nibble(byte >> 4);
-    uart_print_nibble(byte & 15);
-    uart_tx(' ');
+void uart_putnbrln(uint32_t n) {
+    uart_putnbr(n);
+    uart_putstr(CRLF);
 }
