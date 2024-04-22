@@ -36,17 +36,3 @@ bool safe_eeprom_write(void* buffer, size_t offset, size_t length) {
     }
     return true;
 }
-
-bool safe_eeprom_read_byte(size_t offset, size_t idx, uint8_t* byte) {
-    if (!check_args(offset, idx) || !check_magic_number(offset)) return false;
-    *byte = eeprom_read_byte(EEPROM_ADDR(offset, idx));
-    return true;
-}
-
-bool safe_eeprom_write_byte(size_t offset, size_t idx, uint8_t byte) {
-    if (!check_args(offset, idx) || !check_magic_number(offset)) return false;
-    uint8_t* addr = EEPROM_ADDR(offset, idx);
-    uint8_t mem_byte = eeprom_read_byte(addr);
-    if (mem_byte != byte) eeprom_write_byte(addr, byte);
-    return true;
-}
