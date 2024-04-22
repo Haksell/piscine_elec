@@ -1,11 +1,12 @@
-#include <avr/eeprom.h>
-#include <avr/io.h>
-#include <stdbool.h>
+#include "main.h"
 
 #define DEBOUNCE_ITERATIONS 7
 #define COUNTER_ADDR ((uint8_t*)0x42)
 
+// #include <util/delay.h> // TODO: remove
+
 int main() {
+    // uart_init(); // TODO: remove
     DDRB = 0b10111;
     eeprom_write_byte(COUNTER_ADDR, 0);
     uint8_t counterSW1 = 0;
@@ -17,6 +18,7 @@ int main() {
         if (counterSW1 == DEBOUNCE_ITERATIONS) ++n;
         if (counterSW2 == DEBOUNCE_ITERATIONS) --n;
         PORTB = (n & 7) | (n & 8) << 1;
+        // uart_putnbrln(n);
         eeprom_write_byte(COUNTER_ADDR, n);
     }
 }
