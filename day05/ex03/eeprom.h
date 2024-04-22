@@ -11,6 +11,7 @@
 #define EEPROM_MAGIC_BYTES 2
 #define EEPROM_MAGIC 0xce07
 #define EEPROM_MAX_ADDR (EEPROM_BYTES - 6)
+#define EEPROM_TOTAL_CAPACITY (EEPROM_BYTES - 6 - EEPROM_MAGIC_BYTES)
 
 #define EEPROMALLOC_ID(ADDR) (eeprom_read_word((uint16_t*)(ADDR)))
 #define EEPROMALLOC_CAPACITY(ADDR) (eeprom_read_word((uint16_t*)((ADDR) + 2)))

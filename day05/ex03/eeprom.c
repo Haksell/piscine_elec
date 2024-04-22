@@ -2,14 +2,14 @@
 
 bool eepromalloc_init() {
     if (eeprom_read_word((uint16_t*)0) == EEPROM_MAGIC) return false;
-    eeprom_update_word((uint16_t*)0, EEPROM_MAGIC); // magic
-    eeprom_update_word((uint16_t*)2, 0); // id
-    eeprom_update_word((uint16_t*)4, EEPROM_BYTES - 6 - EEPROM_MAGIC_BYTES); // capacity
+    eeprom_update_word((uint16_t*)0, EEPROM_MAGIC);
+    eeprom_update_word((uint16_t*)2, 0);
+    eeprom_update_word((uint16_t*)4, EEPROM_TOTAL_CAPACITY);
     return true;
 }
 
 bool eepromalloc_write(size_t id, void* buffer, size_t length) {
-    if (id == 0 || length > EEPROM_BYTES - 8) return false;
+    if (id == 0 || length > EEPROM_TOTAL_CAPACITY) return false;
     size_t free_block_addr = 0;
     size_t free_block_capacity = EEPROM_BYTES;
     size_t addr = EEPROM_MAGIC_BYTES;
