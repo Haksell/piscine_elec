@@ -1,4 +1,3 @@
-
 #include "main.h"
 
 #include <util/delay.h> // TODO
@@ -15,8 +14,9 @@ void hexdump() {
 int main() {
     uart_init();
     uart_putstrln(eepromalloc_init() ? "Initialized." : "Loading memory...");
+    hexdump();
     while (true) {
-        char buf[] = "mdr";
+        char buf[] = "lolol";
         eepromalloc_write(1, buf, sizeof(buf));
         hexdump();
         break;
