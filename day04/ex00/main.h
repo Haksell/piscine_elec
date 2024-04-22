@@ -15,6 +15,4 @@
         ((dividend) + (_divisor >> 1)) / _divisor;                                                 \
     })
 
-#include "aht20.h"
-#include "i2c.h"
 #include "uart.h"

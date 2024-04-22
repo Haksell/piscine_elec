@@ -1,5 +1,9 @@
 #include "main.h"
 
+#define AHT20_ADDRESS 0x38
+#define I2C_WRITE 0
+#define I2C_READ 1
+
 static void print_status() {
     uart_printstr("Status: ");
     switch (TW_STATUS) {
@@ -37,6 +41,22 @@ static void print_status() {
     }
 }
 
+static void i2c_init() { TWBR = (F_CPU / I2C_F - 16) / 2; }
+
+static void i2c_start() {
+    TWCR = 1 << TWINT | 1 << TWEN | 1 << TWSTA;
+    while (!(TWCR & 1 << TWINT)) {}
+    print_status();
+    TWDR = AHT20_ADDRESS << 1 | I2C_WRITE;
+    TWCR = 1 << TWINT | 1 << TWEN;
+    while (!(TWCR & 1 << TWINT)) {}
+}
+
+static void i2c_stop() {
+    TWCR = 1 << TWINT | 1 << TWEN | 1 << TWSTO;
+    while (!(TWCR & 1 << TWSTO)) {}
+}
+
 int main() {
     uart_init();
     i2c_init();
@@ -44,10 +64,6 @@ int main() {
     for (uint8_t i = 0; i < 3; ++i) {
         uart_printstrln("");
         i2c_start();
-        print_status();
-        i2c_write(AHT20_ADDRESS << 1 | I2C_WRITE);
-        print_status();
-        i2c_write(AHT20_GET_STATUS);
         print_status();
         i2c_stop();
         print_status();
