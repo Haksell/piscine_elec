@@ -6,7 +6,7 @@
 #define EEPROM_MAGIC_0 0x07
 #define EEPROM_MAGIC_1 0xCE
 
-#define EEPROM_ADDR(OFFSET, I) ((uint8_t*)((OFFSET) + (I) + (EEPROM_MAGIC_BYTES)))
+#define EEPROM_ADDR(OFFSET, I) ((uint8_t*)((OFFSET) + (I) + EEPROM_MAGIC_BYTES))
 
 static bool check_args(size_t offset, size_t length) {
     return EEPROM_MAGIC_BYTES + offset + length <= EEPROM_BYTES;
@@ -34,5 +34,19 @@ bool safe_eeprom_write(void* buffer, size_t offset, size_t length) {
         uint8_t mem_byte = eeprom_read_byte(addr);
         if (mem_byte != buf_byte) eeprom_write_byte(addr, buf_byte);
     }
+    return true;
+}
+
+bool safe_eeprom_read_byte(size_t offset, size_t idx, uint8_t* byte) {
+    if (!check_args(offset, idx) || !check_magic_number(offset)) return false;
+    *byte = eeprom_read_byte(EEPROM_ADDR(offset, idx));
+    return true;
+}
+
+bool safe_eeprom_write_byte(size_t offset, size_t idx, uint8_t byte) {
+    if (!check_args(offset, idx) || !check_magic_number(offset)) return false;
+    uint8_t* addr = EEPROM_ADDR(offset, idx);
+    uint8_t mem_byte = eeprom_read_byte(addr);
+    if (mem_byte != byte) eeprom_write_byte(addr, byte);
     return true;
 }
