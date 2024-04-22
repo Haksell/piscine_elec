@@ -2,13 +2,22 @@
 
 #include "main.h"
 
-#define EEPROM_BYTES 64 // Actually 1024. Smaller for testing purposes.
+#if DEBUG
+#define EEPROM_BYTES 64
+#else
+#define EEPROM_BYTES 1024
+#endif
+
 #define EEPROM_MAGIC_BYTES 2
-#define EEPROM_MAGIC 0x07CE
+#define EEPROM_MAGIC 0x1998
 #define EEPROM_MAX_ADDR (EEPROM_BYTES - 6)
 
 typedef uint16_t eeprom_size_t;
 typedef int16_t eeprom_ssize_t;
+
+#define CURRENT_ID(ADDR) (eeprom_read_word((uint16_t*)(ADDR)))
+#define CURRENT_CAPACITY(ADDR) (eeprom_read_word((uint16_t*)((ADDR) + 2)))
+#define CURRENT_LENGTH(ADDR) (eeprom_read_word((uint16_t*)((ADDR) + 4)))
 
 bool eepromalloc_init();
 bool eepromalloc_write(eeprom_size_t id, void* buffer, eeprom_size_t length);

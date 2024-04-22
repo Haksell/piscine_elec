@@ -9,10 +9,11 @@ bool eepromalloc_init() {
 }
 
 bool eepromalloc_write(eeprom_size_t id, void* buffer, eeprom_size_t length) {
+    if (id == 0) return false;
     eeprom_size_t addr = EEPROM_MAGIC_BYTES;
     while (addr < EEPROM_MAX_ADDR) {
-        eeprom_size_t current_id = eeprom_read_word((uint16_t*)addr);
-        eeprom_size_t current_capacity = eeprom_read_word((uint16_t*)(addr + 2));
+        eeprom_size_t current_id = CURRENT_ID(addr);
+        eeprom_size_t current_capacity = CURRENT_CAPACITY(addr);
         if (current_id == 0) {
             if (current_capacity >= length) {
                 eeprom_size_t remaining_capacity = current_capacity - length;
@@ -23,9 +24,7 @@ bool eepromalloc_write(eeprom_size_t id, void* buffer, eeprom_size_t length) {
                     keep_remaining_capacity ? length + remaining_capacity : length
                 );
                 eeprom_update_word((uint16_t*)(addr + 4), length);
-                // eeprom_update_block?
-                for (eeprom_size_t i = 0; i < length; ++i)
-                    eeprom_update_byte((uint8_t*)(addr + i + 6), ((uint8_t*)buffer)[i]);
+                eeprom_update_block(buffer, (void*)(addr + 6), length);
                 if (!keep_remaining_capacity) {
                     eeprom_size_t next_addr = addr + length + 6;
                     eeprom_update_word((uint16_t*)next_addr, 0);
@@ -47,15 +46,16 @@ bool eepromalloc_write(eeprom_size_t id, void* buffer, eeprom_size_t length) {
         }
         addr += 6 + current_capacity;
     }
+    // TODO: reclaim memory from 0 blocks and capacity > length
     return false;
 }
 
 bool eepromalloc_read(eeprom_size_t id, void* buffer, eeprom_size_t length) {
     eeprom_size_t addr = EEPROM_MAGIC_BYTES;
     while (addr < EEPROM_MAX_ADDR) {
-        eeprom_size_t current_id = eeprom_read_word((uint16_t*)addr);
-        eeprom_size_t current_capacity = eeprom_read_word((uint16_t*)(addr + 2));
-        eeprom_size_t current_length = eeprom_read_word((uint16_t*)(addr + 4));
+        eeprom_size_t current_id = CURRENT_ID(addr);
+        eeprom_size_t current_capacity = CURRENT_CAPACITY(addr);
+        eeprom_size_t current_length = CURRENT_LENGTH(addr);
         if (current_id == id) {
             if (current_length < length) {
                 eeprom_read_block(buffer, (void*)(addr + 6), current_length);
@@ -70,10 +70,11 @@ bool eepromalloc_read(eeprom_size_t id, void* buffer, eeprom_size_t length) {
 
 bool eepromalloc_free(eeprom_size_t id) {
     // TODO: unfragment
+    // eeprom_size_t addr = 0;
     eeprom_size_t addr = EEPROM_MAGIC_BYTES;
     while (addr < EEPROM_MAX_ADDR) {
-        eeprom_size_t current_id = eeprom_read_word((uint16_t*)addr);
-        eeprom_size_t current_capacity = eeprom_read_word((uint16_t*)(addr + 2));
+        eeprom_size_t current_id = CURRENT_ID(addr);
+        eeprom_size_t current_capacity = CURRENT_CAPACITY(addr);
         if (current_id == id) {
             eeprom_update_word((uint16_t*)addr, 0);
             return true;
