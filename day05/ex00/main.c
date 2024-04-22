@@ -6,7 +6,7 @@
 #define COUNTER_ADDR ((uint8_t*)0x42)
 
 int main() {
-    DDRB |= 0b10111;
+    DDRB = 0b10111;
     DDRD &= ~(1 << PD2);
     eeprom_write_byte(COUNTER_ADDR, 0);
     int8_t counterSW1 = -1;
