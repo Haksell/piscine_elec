@@ -2,6 +2,12 @@
 
 #include "main.h"
 
+#define ROUND_DIV(dividend, divisor)                                                               \
+    ({                                                                                             \
+        typeof(divisor) _divisor = (divisor);                                                      \
+        ((dividend) + (_divisor >> 1)) / _divisor;                                                 \
+    })
+
 void uart_init();
 void uart_tx(char c);
 char uart_rx();
