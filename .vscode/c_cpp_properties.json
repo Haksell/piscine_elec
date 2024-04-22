@@ -9,6 +9,9 @@
             "cppStandard": "gnu++14",
             "intelliSenseMode": "linux-gcc-x64",
             "compilerArgs": [
+                "-Wall",
+                "-Wextra",
+                "-Werror",
                 "-mmcu=atmega328p",
                 "-DF_CPU=16000000UL",
                 "-DI2C_F=100000UL",
