@@ -99,9 +99,7 @@ static void dict_read(char* key) {
         uart_tx('[');
         uart_putstr(value);
         uart_putstrln("]");
-    } else {
-        uart_putstrln("Not found.");
-    }
+    } else uart_putstrln("Not found.");
 }
 
 static void dict_forget(char* key) {
