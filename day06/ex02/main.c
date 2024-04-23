@@ -22,8 +22,8 @@ static void wheel(uint8_t pos) {
 }
 
 static void setup_timer0() {
-    TCCR0A |= 1 << WGM00 | 1 << WGM01 | 1 << COM0A1 | 1 << COM0B1;
-    TCCR0B |= 1 << CS00;
+    TCCR0A = 1 << WGM00 | 1 << WGM01 | 1 << COM0A1 | 1 << COM0B1;
+    TCCR0B = 1 << CS00;
 }
 
 ISR(TIMER1_OVF_vect) { wheel(++n); }
@@ -35,8 +35,8 @@ static void setup_timer1() {
 }
 
 static void setup_timer2() {
-    TCCR2A |= 1 << WGM20 | 1 << WGM21 | 1 << COM2B1;
-    TCCR2B |= 1 << CS20;
+    TCCR2A = 1 << WGM20 | 1 << WGM21 | 1 << COM2B1;
+    TCCR2B = 1 << CS20;
 }
 
 static void init_rgb() {
