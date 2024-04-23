@@ -1,6 +1,8 @@
-#include "main.h"
+#include <avr/interrupt.h>
+#include <avr/io.h>
+#include <stdbool.h>
 
-volatile uint8_t n = 0;
+volatile uint8_t pos = 0;
 
 static void set_rgb(uint8_t r, uint8_t g, uint8_t b) {
     OCR0B = r;
@@ -26,7 +28,7 @@ static void setup_timer0() {
     TCCR0B = 1 << CS00;
 }
 
-ISR(TIMER1_OVF_vect) { wheel(++n); }
+ISR(TIMER1_OVF_vect) { wheel(++pos); }
 
 static void setup_timer1() {
     TCCR1A = 0;
@@ -50,7 +52,6 @@ static void init_rgb() {
 }
 
 int main() {
-    uart_init();
     init_rgb();
     while (true) {}
 }
