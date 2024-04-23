@@ -56,15 +56,13 @@ void uart_readline(char* buffer, size_t buffer_size) {
     uart_putstr("> ");
     while (true) {
         char c = uart_rx();
-        if (c == BACKSPACE) {
-            if (i > 0) {
-                --i;
-                uart_putstr("\b \b");
-            }
-        } else if (c == '\r') {
+        if (c == '\r') {
             buffer[i] = '\0';
             uart_newline();
             return;
+        } else if (c == BACKSPACE && i > 0) {
+            --i;
+            uart_putstr("\b \b");
         } else if (ft_isprint(c) && i < buffer_size - 1) {
             buffer[i] = c;
             ++i;
