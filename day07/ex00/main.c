@@ -16,7 +16,7 @@ static void adc_init() {
     // Set pre-scaler to 128 because 50KHz <= 16MHz / 128 = 125KHz <= 200KHz
     ADCSRA = 1 << ADPS2 | 1 << ADPS1 | 1 << ADPS0;
     ADCSRA |= 1 << ADIE; // Enable interrupt
-    ADCSRA |= 1 << ADEN | 1 << ADIE; // Enable ADC
+    ADCSRA |= 1 << ADEN; // Enable ADC
     ADCSRA |= 1 << ADSC; // Start first conversion
 }
 
