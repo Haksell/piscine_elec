@@ -1,5 +1,7 @@
 #include "main.h"
 
+#define BUFFER_SIZE 128
+
 static void hexdump() {
     for (size_t i = 0; i < EEPROM_BYTES; ++i) {
         uint8_t spaces = i == 0 ? 0 : (i & 7) == 0 ? 2 : 1;
@@ -23,7 +25,8 @@ static void blockdump() {
         } else {
             uart_putnbr(current_id);
             uart_putstr(": ");
-            uart_putnbr(current_length);
+            for (size_t i = 0; i < current_length; ++i)
+                uart_tx(eeprom_read_byte((uint8_t*)(addr + 6 + i)));
             uart_tx('/');
             uart_putnbr(current_capacity);
         }
@@ -38,25 +41,10 @@ static void memorydump() {
     blockdump();
 }
 
-/*
-> READ "key-1"
-> WRITE "key-1" "dunno"
-Done.
-> READ "key-1"
-"dunno"
-> FORGET "key-2"
-Not found.
-> FORGET "key-1"
-Done.
-> READ "key-1"
-*/
-
-#define COMMAND_BUFFER_SIZE 128
-
 typedef enum {
     COMMAND_INVALID,
-    COMMAND_READ,
     COMMAND_WRITE,
+    COMMAND_READ,
     COMMAND_FORGET,
 } Command;
 
@@ -76,27 +64,48 @@ static bool parse_arg(char** buf_ptr, char* arg) {
     return true;
 }
 
-static Command parse_command(char* s, char* arg1, __attribute__((unused)) char* arg2) {
+static Command parse_command(char* s, char* key, __attribute__((unused)) char* value) {
     while (*s == ' ') ++s;
     size_t i = 0;
     while (s[i] && s[i] != ' ') ++i;
     if (!s[i]) return COMMAND_INVALID;
     s[i] = '\0';
     Command command;
-    if (str_equals(s, "READ")) command = COMMAND_READ;
-    else if (str_equals(s, "WRITE")) command = COMMAND_WRITE;
+    if (str_equals(s, "WRITE")) command = COMMAND_WRITE;
+    else if (str_equals(s, "READ")) command = COMMAND_READ;
     else if (str_equals(s, "FORGET")) command = COMMAND_FORGET;
     else return COMMAND_INVALID;
     s += i + 1;
     while (*s == ' ') ++s;
-    if (!parse_arg(&s, arg1)) return COMMAND_INVALID;
+    if (!parse_arg(&s, key)) return COMMAND_INVALID;
     if (command == COMMAND_WRITE) {
         if (*s != ' ') return COMMAND_INVALID;
         while (*s == ' ') ++s;
-        if (!parse_arg(&s, arg2)) return COMMAND_INVALID;
+        if (!parse_arg(&s, value)) return COMMAND_INVALID;
     }
     while (*s == ' ') ++s;
     return *s ? COMMAND_INVALID : command;
+}
+
+static void dict_write(char* key, char* value) {
+    size_t id = hash((uint8_t*)key);
+    uart_putstrln(eepromalloc_write(id, value, ft_strlen(value)) ? "Done." : "No space left.");
+}
+
+static void dict_read(char* key) {
+    char value[BUFFER_SIZE];
+    size_t id = hash((uint8_t*)key);
+    if (eepromalloc_read(id, value, BUFFER_SIZE)) {
+        uart_tx('[');
+        uart_putstr(value);
+        uart_putstrln("]");
+    } else {
+        uart_putstrln("Not found.");
+    }
+}
+
+static void dict_forget(char* key) {
+    uart_putstrln(eepromalloc_free(hash((uint8_t*)key)) ? "Done." : "Not found.");
 }
 
 int main() {
@@ -104,30 +113,20 @@ int main() {
     uart_putstrln(eepromalloc_init() ? "Memory initialized." : "Loading memory...");
     memorydump();
     while (true) {
-        char buffer[COMMAND_BUFFER_SIZE];
-        uart_readline(buffer, COMMAND_BUFFER_SIZE);
+        char buffer[BUFFER_SIZE];
+        uart_readline(buffer, BUFFER_SIZE);
         if (str_is_space(buffer)) continue;
         if (str_equals(buffer, ".")) {
             memorydump();
             continue;
         }
-        char arg1[COMMAND_BUFFER_SIZE];
-        char arg2[COMMAND_BUFFER_SIZE];
-        switch (parse_command(buffer, arg1, arg2)) {
-            case COMMAND_INVALID: uart_putstrln("COMMAND_INVALID"); break;
-            case COMMAND_READ:
-                uart_putstrln("COMMAND_READ");
-                uart_putstrln(arg1);
-                break;
-            case COMMAND_WRITE:
-                uart_putstrln("COMMAND_WRITE");
-                uart_putstrln(arg1);
-                uart_putstrln(arg2);
-                break;
-            case COMMAND_FORGET:
-                uart_putstrln("COMMAND_FORGET");
-                uart_putstrln(arg1);
-                break;
+        char key[BUFFER_SIZE];
+        char value[BUFFER_SIZE];
+        switch (parse_command(buffer, key, value)) {
+            case COMMAND_INVALID: uart_putstrln("Invalid command."); break;
+            case COMMAND_WRITE: dict_write(key, value); break;
+            case COMMAND_READ: dict_read(key); break;
+            case COMMAND_FORGET: dict_forget(key); break;
         }
     }
 }
