@@ -11,6 +11,7 @@ static void hexdump() {
     uart_newline();
 }
 
+// TODO: separate blockdump & dictdump
 static void blockdump() {
     size_t addr = EEPROM_MAGIC_BYTES;
     while (addr < EEPROM_MAX_ADDR) {
