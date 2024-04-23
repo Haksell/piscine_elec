@@ -38,7 +38,7 @@ size_t hash(uint8_t* str) {
 size_t hash(uint8_t* str) {
     size_t res = 5381;
     while (*str) {
-        res = res << 5 + res + *str;
+        res = (res << 5) + res + *str;
         ++str;
     }
     return res;
