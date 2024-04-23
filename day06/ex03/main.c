@@ -6,21 +6,13 @@ static void set_rgb(uint8_t r, uint8_t g, uint8_t b) {
     OCR2B = 255 - b;
 }
 
-static void setup_timer0() {
-    TCCR0A = 1 << WGM00 | 1 << WGM01 | 1 << COM0A0 | 1 << COM0A1 | 1 << COM0B0 | 1 << COM0B1;
-    TCCR0B = 1 << CS00;
-}
-
-static void setup_timer2() {
-    TCCR2A = 1 << WGM20 | 1 << WGM21 | 1 << COM2B0 | 1 << COM2B1;
-    TCCR2B = 1 << CS20;
-}
-
 static void init_rgb() {
     DDRD = 0b1101000;
     PORTD = 0;
-    setup_timer0();
-    setup_timer2();
+    TCCR0A = 1 << WGM00 | 1 << WGM01 | 1 << COM0A0 | 1 << COM0A1 | 1 << COM0B0 | 1 << COM0B1;
+    TCCR0B = 1 << CS00;
+    TCCR2A = 1 << WGM20 | 1 << WGM21 | 1 << COM2B0 | 1 << COM2B1;
+    TCCR2B = 1 << CS20;
     set_rgb(0, 0, 0);
     sei();
 }
