@@ -60,8 +60,23 @@ typedef enum {
     COMMAND_FORGET,
 } Command;
 
-static Command
-parse_command(char* s, __attribute__((unused)) char* arg1, __attribute__((unused)) char* arg2) {
+static bool parse_arg(char** buf_ptr, char* arg) {
+    if (**buf_ptr != '"') return false;
+    char* buf = *buf_ptr + 1;
+    size_t i = 0;
+    while (*buf != '"') {
+        if (*buf == '\\') ++buf;
+        if (*buf == '\0') return false;
+        arg[i] = *buf;
+        ++i;
+        ++buf;
+    }
+    arg[i] = '\0';
+    *buf_ptr = buf + 1;
+    return true;
+}
+
+static Command parse_command(char* s, char* arg1, __attribute__((unused)) char* arg2) {
     while (*s == ' ') ++s;
     size_t i = 0;
     while (s[i] && s[i] != ' ') ++i;
@@ -74,8 +89,14 @@ parse_command(char* s, __attribute__((unused)) char* arg1, __attribute__((unused
     else return COMMAND_INVALID;
     s += i + 1;
     while (*s == ' ') ++s;
-    uart_putstrln(s);
-    return command;
+    if (!parse_arg(&s, arg1)) return COMMAND_INVALID;
+    if (command == COMMAND_WRITE) {
+        if (*s != ' ') return COMMAND_INVALID;
+        while (*s == ' ') ++s;
+        if (!parse_arg(&s, arg2)) return COMMAND_INVALID;
+    }
+    while (*s == ' ') ++s;
+    return *s ? COMMAND_INVALID : command;
 }
 
 int main() {
@@ -94,9 +115,19 @@ int main() {
         char arg2[COMMAND_BUFFER_SIZE];
         switch (parse_command(buffer, arg1, arg2)) {
             case COMMAND_INVALID: uart_putstrln("COMMAND_INVALID"); break;
-            case COMMAND_READ: uart_putstrln("COMMAND_READ"); break;
-            case COMMAND_WRITE: uart_putstrln("COMMAND_WRITE"); break;
-            case COMMAND_FORGET: uart_putstrln("COMMAND_FORGET"); break;
+            case COMMAND_READ:
+                uart_putstrln("COMMAND_READ");
+                uart_putstrln(arg1);
+                break;
+            case COMMAND_WRITE:
+                uart_putstrln("COMMAND_WRITE");
+                uart_putstrln(arg1);
+                uart_putstrln(arg2);
+                break;
+            case COMMAND_FORGET:
+                uart_putstrln("COMMAND_FORGET");
+                uart_putstrln(arg1);
+                break;
         }
     }
 }
