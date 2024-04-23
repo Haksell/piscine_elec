@@ -48,3 +48,23 @@ void uart_putbyte(uint8_t n) {
     uart_putnibble(n >> 4);
     uart_putnibble(n & 15);
 }
+
+void uart_readline(char* buffer, size_t buffer_size) {
+    size_t i = 0;
+    uart_putstr("> ");
+    while (true) {
+        char c = uart_rx();
+        if (c == '\r') {
+            buffer[i] = '\0';
+            uart_newline();
+            return;
+        } else if (c == BACKSPACE && i > 0) {
+            --i;
+            uart_putstr("\b \b");
+        } else if (ft_isprint(c) && i < buffer_size - 1) {
+            buffer[i] = c;
+            ++i;
+            uart_tx(c);
+        }
+    }
+}

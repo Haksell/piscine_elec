@@ -38,28 +38,6 @@ static void memorydump() {
     blockdump();
 }
 
-static void uart_readline(char* buffer, size_t buffer_size) {
-    size_t i = 0;
-    uart_putstr("> ");
-    while (true) {
-        char c = uart_rx();
-        if (c == BACKSPACE) {
-            if (i > 0) {
-                --i;
-                uart_putstr("\b \b");
-            }
-        } else if (c == '\r') {
-            buffer[i] = '\0';
-            uart_newline();
-            return;
-        } else if (ft_isprint(c) && i < buffer_size - 1) {
-            buffer[i] = c;
-            ++i;
-            uart_tx(c);
-        }
-    }
-}
-
 static bool atoi_id(char* str, size_t* id, size_t* i) {
     static const size_t limit_init = SIZE_MAX / 10;
     static const size_t limit_last = SIZE_MAX % 10;
