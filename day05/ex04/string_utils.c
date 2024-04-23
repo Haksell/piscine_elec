@@ -10,6 +10,15 @@ size_t ft_strlen(char* s) {
     return i;
 }
 
+void ft_strcpy(char* dst, const char* src) {
+    while (*src) {
+        *dst = *src;
+        ++dst;
+        ++src;
+    }
+    *dst = '\0';
+}
+
 bool str_is_space(char* s) {
     while (*s) {
         if (*s != ' ') return false;

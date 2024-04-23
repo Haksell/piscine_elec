@@ -87,25 +87,71 @@ static Command parse_command(char* s, char* key, __attribute__((unused)) char* v
     return *s ? COMMAND_INVALID : command;
 }
 
-// TODO: handle id collisions
-
 static void dict_write(char* key, char* value) {
+    char key_value[BUFFER_SIZE], buffer[BUFFER_SIZE];
+    const size_t len_key = ft_strlen(key);
+    const size_t len_value = ft_strlen(value);
+    ft_strcpy(key_value, key);
+    key_value[len_key] = '\0';
+    ft_strcpy(key_value + len_key + 1, value);
+
     size_t id = hash((uint8_t*)key);
-    uart_putstrln(eepromalloc_write(id, value, ft_strlen(value)) ? "Done." : "No space left.");
+    while (true) {
+        ssize_t read_bytes = eepromalloc_read(id, buffer, BUFFER_SIZE);
+        if (read_bytes > 0) ++id;
+        else {
+            if (read_bytes == 0) eepromalloc_free(id);
+            bool success = eepromalloc_write(id, key_value, len_key + 1 + len_value);
+            uart_putstrln(success ? "Done." : "No space left.");
+            return;
+        }
+    }
 }
 
 static void dict_read(char* key) {
-    char value[BUFFER_SIZE];
+    char key_value[BUFFER_SIZE];
     size_t id = hash((uint8_t*)key);
-    if (eepromalloc_read(id, value, BUFFER_SIZE)) {
-        uart_tx('[');
-        uart_putstr(value);
-        uart_putstrln("]");
-    } else uart_putstrln("Not found.");
+    while (true) {
+        ssize_t read_bytes = eepromalloc_read(id, key_value, BUFFER_SIZE);
+        if (read_bytes == -1) {
+            uart_putstrln("Not found.");
+            return;
+        } else if (read_bytes > 0 && str_equals(key, key_value)) {
+            size_t i = 0;
+            while (key_value[i]) ++i;
+            uart_tx('[');
+            uart_putstr(key_value + i + 1);
+            uart_putstrln("]");
+            return;
+        } else ++id;
+    }
 }
 
 static void dict_forget(char* key) {
-    uart_putstrln(eepromalloc_free(hash((uint8_t*)key)) ? "Done." : "Not found.");
+    char key_value[BUFFER_SIZE];
+    size_t true_id = hash((uint8_t*)key), id = true_id, start_free_id = true_id;
+    while (true) {
+        ssize_t read_bytes = eepromalloc_read(id, key_value, BUFFER_SIZE);
+        if (read_bytes == -1) {
+            uart_putstrln("Not found.");
+            return;
+        } else if (read_bytes > 0 && str_equals(key, key_value)) {
+            if (eepromalloc_read(id + 1, key_value, BUFFER_SIZE) >= 0)
+                eepromalloc_write(id, NULL, 0);
+            else {
+                while (id != start_free_id) {
+                    eepromalloc_free(id);
+                    --id;
+                }
+                eepromalloc_free(id);
+            }
+            uart_putstrln("Done.");
+            return;
+        } else {
+            ++id;
+            if (read_bytes > 0) start_free_id = id;
+        }
+    }
 }
 
 int main() {

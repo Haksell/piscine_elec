@@ -63,7 +63,7 @@ bool eepromalloc_write(size_t id, void* buffer, size_t length) {
     return true;
 }
 
-bool eepromalloc_read(size_t id, void* buffer, size_t length) {
+ssize_t eepromalloc_read(size_t id, void* buffer, size_t length) {
     size_t addr = EEPROM_MAGIC_BYTES;
     while (addr < EEPROM_MAX_ADDR) {
         size_t current_id = EEPROMALLOC_ID(addr);
@@ -73,12 +73,12 @@ bool eepromalloc_read(size_t id, void* buffer, size_t length) {
             if (current_length < length) {
                 eeprom_read_block(buffer, (void*)(addr + 6), current_length);
                 ((char*)buffer)[current_length] = '\0';
-                return true;
-            } else return false;
+                return current_length;
+            } else return -1;
         }
         addr += 6 + current_capacity;
     }
-    return false;
+    return -1;
 }
 
 bool eepromalloc_free(size_t id) {
