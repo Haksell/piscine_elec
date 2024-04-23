@@ -87,6 +87,8 @@ static Command parse_command(char* s, char* key, __attribute__((unused)) char* v
     return *s ? COMMAND_INVALID : command;
 }
 
+// TODO: handle id collisions
+
 static void dict_write(char* key, char* value) {
     size_t id = hash((uint8_t*)key);
     uart_putstrln(eepromalloc_write(id, value, ft_strlen(value)) ? "Done." : "No space left.");
