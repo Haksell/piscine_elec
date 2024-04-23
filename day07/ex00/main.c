@@ -1,4 +1,7 @@
-#include "main.h"
+#include "uart.h"
+#include <avr/interrupt.h>
+#include <avr/io.h>
+#include <stdbool.h>
 
 #define CTC_MODE (1 << WGM12)
 #define TIMER_PRESCALER_256 (1 << CS12)
