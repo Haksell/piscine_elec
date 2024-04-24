@@ -1,13 +1,12 @@
 #include "uart.h"
 #include <avr/interrupt.h>
 #include <avr/io.h>
-#include <math.h> // TODO: remove?
+#include <math.h>
 #include <stdbool.h>
 
 #define CTC_MODE (1 << WGM12)
 #define TIMER_PRESCALER_256 (1 << CS12)
 #define PRINT_INTERVAL 0.02
-#define ADC_THERMISTOR PC2
 
 ISR(ADC_vect) { ADCSRA |= 1 << ADSC; }
 
