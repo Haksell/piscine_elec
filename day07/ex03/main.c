@@ -17,7 +17,7 @@ static void adc_init() {
 
 #define V_REF 5.0
 #define T_REF 298.15
-#define BETA_COEFFICIENT 3450.0
+#define BETA_COEFFICIENT 3950.0 // TODO
 
 static float convert_adc_to_celsius(uint16_t adc) {
     return 1 / (1 / T_REF + logf(1023.0 / adc - 1) / BETA_COEFFICIENT) - 273.15;
