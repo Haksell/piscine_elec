@@ -32,8 +32,15 @@ static void rgb_init() {
     rgb_wheel(ADC >> 2);
 }
 
+static void leds_init() {
+    DDRB = 0b10111;
+    PORTB = 0;
+}
+
 ISR(ADC_vect) {
     rgb_wheel(ADC >> 2);
+    uint8_t led = ADC >> 8;
+    PORTB = 1 << (led + (led == 3));
     ADCSRA |= 1 << ADSC;
 }
 
@@ -46,6 +53,7 @@ int main() {
     uart_init();
     adc_init();
     rgb_init();
+    leds_init();
     sei();
     while (true) {}
 }
