@@ -20,9 +20,7 @@ static void adc_init() {
 #define BETA_COEFFICIENT 3950.0 // TODO
 
 static float convert_adc_to_celsius(uint16_t adc) {
-    float resistance_ratio = 1023.0 / adc - 1;
-    float kelvin = 1 / (1 / T_REF + logf(resistance_ratio) / BETA_COEFFICIENT);
-    return kelvin - 273.15;
+    return 1 / (1 / T_REF + logf(1023.0 / adc - 1) / BETA_COEFFICIENT) - 273.15;
 }
 
 ISR(TIMER1_COMPA_vect) {
