@@ -14,7 +14,6 @@ static void init_rgb() {
     TCCR2A = 1 << WGM20 | 1 << WGM21 | 1 << COM2B0 | 1 << COM2B1;
     TCCR2B = 1 << CS20;
     set_rgb(0, 0, 0);
-    sei();
 }
 
 static bool parse_hexa(char c, uint8_t* h) {
