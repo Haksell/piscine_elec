@@ -6,7 +6,7 @@
 
 #define CTC_MODE (1 << WGM12)
 #define TIMER_PRESCALER_256 (1 << CS12)
-#define PRINT_INTERVAL 0.02
+#define PRINT_INTERVAL 0.5
 
 ISR(ADC_vect) { ADCSRA |= 1 << ADSC; }
 
@@ -17,7 +17,7 @@ static void adc_init() {
 
 #define V_REF 5.0
 #define T_REF 298.15
-#define BETA_COEFFICIENT 3950.0 // TODO
+#define BETA_COEFFICIENT 3450.0
 
 static float convert_adc_to_celsius(uint16_t adc) {
     return 1 / (1 / T_REF + logf(1023.0 / adc - 1) / BETA_COEFFICIENT) - 273.15;
