@@ -16,15 +16,12 @@ static void adc_init() {
     ADCSRA = 1 << ADPS2 | 1 << ADPS1 | 1 << ADPS0 | 1 << ADIE | 1 << ADEN | 1 << ADSC;
 }
 
-#define R_BALANCE 10000.0
 #define V_REF 5.0
-#define T_REF 298.15 // TODO
-#define R_REF 10000.0 // TODO
+#define T_REF 298.15
 #define BETA_COEFFICIENT 3950.0 // TODO
 
 static float convert_adc_to_celsius(uint16_t adc) {
-    float resistance = R_BALANCE * (1023.0 / adc - 1);
-    float resistance_ratio = resistance / R_REF;
+    float resistance_ratio = 1023.0 / adc - 1;
     float kelvin = 1 / (1 / T_REF + logf(resistance_ratio) / BETA_COEFFICIENT);
     return kelvin - 273.15;
 }
