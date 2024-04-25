@@ -8,9 +8,9 @@
 #define RGB_DODGER_BLUE ((t_rgb){0x1e, 0x90, 0xff})
 
 ISR(ADC_vect) {
-    uint8_t led = ADC * NUM_LEDS / 1023;
+    uint8_t lights = ADC * NUM_LEDS / 1023;
     t_rgb colors[NUM_LEDS];
-    for (uint8_t i = 0; i < NUM_LEDS; ++i) colors[i] = i < led ? RGB_DODGER_BLUE : RGB_BLACK;
+    for (uint8_t i = 0; i < NUM_LEDS; ++i) colors[i] = i < lights ? RGB_DODGER_BLUE : RGB_BLACK;
     apa102_send_colors(colors);
     ADCSRA |= 1 << ADSC;
 }
