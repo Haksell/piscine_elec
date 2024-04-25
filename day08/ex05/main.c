@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
+// TODO: remove
 #define RGB_BLACK ((t_rgb){0, 0, 0})
 #define RGB_DODGER_BLUE ((t_rgb){0x1e, 0x90, 0xff})
 
