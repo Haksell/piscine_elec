@@ -18,31 +18,31 @@ typedef struct {
 #define MOSI (1 << PB3)
 #define SCK (1 << PB5)
 
-void spi_init_master() {
+static void spi_init_master() {
     DDRB = SS | MOSI | SCK;
     SPCR = 1 << SPE | 1 << MSTR | 1 << SPR0;
 }
 
-void spi_send(uint8_t data) {
+static void spi_send(uint8_t data) {
     SPDR = data;
     while (!(SPSR & 1 << SPIF)) {}
 }
 
-void apa102_start() {
+static void apa102_start() {
     spi_send(0x00);
     spi_send(0x00);
     spi_send(0x00);
     spi_send(0x00);
 }
 
-void apa102_send_color(t_rgb rgb) {
+static void apa102_send_color(t_rgb rgb) {
     spi_send(0xe2); // brightness
     spi_send(rgb.blue);
     spi_send(rgb.green);
     spi_send(rgb.red);
 }
 
-void apa102_end() {
+static void apa102_end() {
     spi_send(0xff);
     spi_send(0xff);
     spi_send(0xff);
@@ -58,7 +58,7 @@ ISR(ADC_vect) {
     ADCSRA |= 1 << ADSC;
 }
 
-void adc_init() {
+static void adc_init() {
     ADMUX = 1 << REFS0 | PC0;
     ADCSRA = 1 << ADPS2 | 1 << ADPS1 | 1 << ADPS0 | 1 << ADIE | 1 << ADEN | 1 << ADSC;
 }
