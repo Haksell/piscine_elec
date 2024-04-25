@@ -11,7 +11,7 @@ typedef struct {
 } t_rgb;
 
 #define NUM_LEDS 3
-#define RAINBOW_PHASE_SHIFT (-20)
+#define RAINBOW_PHASE_SHIFT (-30)
 
 t_rgb colors[NUM_LEDS];
 bool full_rainbow = false;
