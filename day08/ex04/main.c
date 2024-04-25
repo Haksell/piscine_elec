@@ -11,9 +11,11 @@ typedef struct {
 } t_rgb;
 
 #define NUM_LEDS 3
+#define RAINBOW_PHASE_SHIFT 45
 
 t_rgb colors[NUM_LEDS];
 bool rainbow_mode = false;
+uint8_t rainbow_state = 0;
 
 static void spi_init_master() {
     DDRB = 1 << PB2 | 1 << PB3 | 1 << PB5;
@@ -89,32 +91,27 @@ static bool parse_command(char* s, t_rgb* color, uint8_t* led) {
     } else return false;
 }
 
-// === RAINBOW MODE START ===
-
-volatile uint8_t pos = 0;
-
-static void set_rgb(uint8_t r, uint8_t g, uint8_t b) {
-    apa102_start();
-    apa102_send_color((t_rgb){r, g, b});
-    apa102_send_color((t_rgb){g, b, r});
-    apa102_send_color((t_rgb){b, r, g});
-    apa102_end();
-}
-
 static void wheel(uint8_t pos) {
     pos = 255 - pos;
     if (pos < 85) {
-        set_rgb(255 - pos * 3, 0, pos * 3);
+        apa102_send_color((t_rgb){255 - pos * 3, 0, pos * 3});
     } else if (pos < 170) {
         pos = pos - 85;
-        set_rgb(0, pos * 3, 255 - pos * 3);
+        apa102_send_color((t_rgb){0, pos * 3, 255 - pos * 3});
     } else {
         pos = pos - 170;
-        set_rgb(pos * 3, 255 - pos * 3, 0);
+        apa102_send_color((t_rgb){pos * 3, 255 - pos * 3, 0});
     }
 }
 
-ISR(TIMER1_OVF_vect) { wheel(++pos); }
+ISR(TIMER1_OVF_vect) {
+    apa102_start();
+    wheel(rainbow_state);
+    wheel(rainbow_state + RAINBOW_PHASE_SHIFT);
+    wheel(rainbow_state + (2 * RAINBOW_PHASE_SHIFT));
+    apa102_end();
+    ++rainbow_state;
+}
 
 static void setup_timer1() {
     TCCR1A = 0;
