@@ -11,10 +11,10 @@ typedef struct {
 } t_rgb;
 
 #define NUM_LEDS 3
-#define RAINBOW_PHASE_SHIFT 45
+#define RAINBOW_PHASE_SHIFT (-20)
 
 t_rgb colors[NUM_LEDS];
-bool rainbow_mode = false;
+bool full_rainbow = false;
 uint8_t rainbow_state = 0;
 
 static void spi_init_master() {
@@ -35,7 +35,7 @@ static void apa102_start() {
 }
 
 static void apa102_send_color(t_rgb rgb) {
-    spi_send(0xe2); // brightness
+    spi_send(0xe1);
     spi_send(rgb.blue);
     spi_send(rgb.green);
     spi_send(rgb.red);
@@ -105,11 +105,13 @@ static void wheel(uint8_t pos) {
 }
 
 ISR(TIMER1_OVF_vect) {
-    apa102_start();
-    wheel(rainbow_state);
-    wheel(rainbow_state + RAINBOW_PHASE_SHIFT);
-    wheel(rainbow_state + (2 * RAINBOW_PHASE_SHIFT));
-    apa102_end();
+    if (full_rainbow) {
+        apa102_start();
+        wheel(rainbow_state);
+        wheel(rainbow_state + RAINBOW_PHASE_SHIFT);
+        wheel(rainbow_state + (2 * RAINBOW_PHASE_SHIFT));
+        apa102_end();
+    }
     ++rainbow_state;
 }
 
@@ -118,8 +120,6 @@ static void setup_timer1() {
     TCCR1B = 1 << CS10;
     TIMSK1 = 1 << TOIE1;
 }
-
-// === RAINBOW MODE END ===
 
 int main() {
     uart_init();
@@ -134,10 +134,9 @@ int main() {
         t_rgb color;
         uint8_t led;
         if (str_equals(buffer, "FULLRAINBOW")) {
-            rainbow_mode = true;
-            uart_putstrln("RAINBOW TODO");
+            full_rainbow = true;
         } else if (parse_command(buffer, &color, &led)) {
-            rainbow_mode = false;
+            full_rainbow = false;
             colors[led] = color;
             apa102_send_colors(colors);
         } else {
