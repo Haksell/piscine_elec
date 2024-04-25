@@ -12,6 +12,9 @@ typedef struct {
 
 #define NUM_LEDS 3
 
+t_rgb colors[NUM_LEDS];
+bool rainbow_mode = false;
+
 static void spi_init_master() {
     DDRB = 1 << PB2 | 1 << PB3 | 1 << PB5;
     SPCR = 1 << SPE | 1 << MSTR | 1 << SPR0;
@@ -43,9 +46,7 @@ static void apa102_end() {
     spi_send(0xff);
 }
 
-t_rgb colors[NUM_LEDS];
-
-static void apa102_send_colors() {
+static void apa102_send_colors(t_rgb colors[NUM_LEDS]) {
     apa102_start();
     for (size_t i = 0; i < NUM_LEDS; ++i) apa102_send_color(colors[i]);
     apa102_end();
@@ -88,10 +89,47 @@ static bool parse_command(char* s, t_rgb* color, uint8_t* led) {
     } else return false;
 }
 
+// === RAINBOW MODE START ===
+
+volatile uint8_t pos = 0;
+
+static void set_rgb(uint8_t r, uint8_t g, uint8_t b) {
+    apa102_start();
+    apa102_send_color((t_rgb){r, g, b});
+    apa102_send_color((t_rgb){g, b, r});
+    apa102_send_color((t_rgb){b, r, g});
+    apa102_end();
+}
+
+static void wheel(uint8_t pos) {
+    pos = 255 - pos;
+    if (pos < 85) {
+        set_rgb(255 - pos * 3, 0, pos * 3);
+    } else if (pos < 170) {
+        pos = pos - 85;
+        set_rgb(0, pos * 3, 255 - pos * 3);
+    } else {
+        pos = pos - 170;
+        set_rgb(pos * 3, 255 - pos * 3, 0);
+    }
+}
+
+ISR(TIMER1_OVF_vect) { wheel(++pos); }
+
+static void setup_timer1() {
+    TCCR1A = 0;
+    TCCR1B = 1 << CS10;
+    TIMSK1 = 1 << TOIE1;
+}
+
+// === RAINBOW MODE END ===
+
 int main() {
     uart_init();
+    setup_timer1();
     spi_init_master();
-    apa102_send_colors();
+    apa102_send_colors(colors);
+    sei();
     while (true) {
         char buffer[12];
         uart_readline("#", buffer, sizeof(buffer));
@@ -99,10 +137,12 @@ int main() {
         t_rgb color;
         uint8_t led;
         if (str_equals(buffer, "FULLRAINBOW")) {
+            rainbow_mode = true;
             uart_putstrln("RAINBOW TODO");
         } else if (parse_command(buffer, &color, &led)) {
+            rainbow_mode = false;
             colors[led] = color;
-            apa102_send_colors();
+            apa102_send_colors(colors);
         } else {
             uart_putstrln("Invalid command.");
         }
