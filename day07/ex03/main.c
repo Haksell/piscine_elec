@@ -11,18 +11,13 @@
 ISR(ADC_vect) { ADCSRA |= 1 << ADSC; }
 
 static void adc_init() {
-    ADMUX = 1 << REFS0 | PC2;
+    ADMUX = 1 << REFS0 | 1 << REFS1 | 8;
     ADCSRA = 1 << ADPS2 | 1 << ADPS1 | 1 << ADPS0 | 1 << ADIE | 1 << ADEN | 1 << ADSC;
 }
 
-#define V_REF 5.0
-#define T_REF 298.15
-#define BETA_COEFFICIENT 3950.0
-
 static float convert_adc_to_celsius(uint16_t adc) {
-    float resistance_ratio = 1023.0 / adc - 1;
-    float k = 1 / (1 / T_REF + logf(resistance_ratio) / BETA_COEFFICIENT);
-    return k - 273.15;
+    int16_t diff = adc - 314;
+    return 25.0 + (diff > 0 ? diff / 66.0 * 60.0 : diff / 72 * 70);
 }
 
 ISR(TIMER1_COMPA_vect) {
