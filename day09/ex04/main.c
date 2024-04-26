@@ -33,19 +33,17 @@ static void pca9555_write(uint8_t reg, uint8_t data0, uint8_t data1) {
     i2c_stop();
 }
 
+static void seven_segment_show(uint8_t pin, uint8_t digit) {
+    pca9555_write(PCA9555_CONFIG_REG, (uint8_t)~pin, 0x00);
+    pca9555_write(PCA9555_OUTPUT_REG, 0, DIGITS[digit]);
+    _delay_us(500);
+    pca9555_write(PCA9555_OUTPUT_REG, 0, 0);
+}
+
 int main() {
     i2c_init();
     while (true) {
-        pca9555_write(PCA9555_CONFIG_REG, (uint8_t)~LCD3, 0x00);
-        pca9555_write(PCA9555_OUTPUT_REG, 0, DIGITS[4]);
-        _delay_us(100);
-        pca9555_write(PCA9555_OUTPUT_REG, 0, 0);
-        // _delay_us(100);
-
-        pca9555_write(PCA9555_CONFIG_REG, (uint8_t)~LCD4, 0x00);
-        pca9555_write(PCA9555_OUTPUT_REG, 0, DIGITS[2]);
-        _delay_us(100);
-        pca9555_write(PCA9555_OUTPUT_REG, 0, 0);
-        // _delay_us(100);
+        seven_segment_show(LCD3, 4);
+        seven_segment_show(LCD4, 2);
     }
 }
