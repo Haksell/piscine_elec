@@ -1,6 +1,7 @@
 #include "i2c.h"
 #include <avr/io.h>
 #include <stdbool.h>
+#include <util/delay.h>
 
 #define PCA9555_ADDRESS 0x20
 
@@ -42,10 +43,19 @@ static void seven_segment_show(uint8_t pin, uint8_t digit) {
 
 int main() {
     i2c_init();
+    uint16_t counter = 0;
     while (true) {
-        seven_segment_show(LCD1, 4);
-        seven_segment_show(LCD2, 2);
-        seven_segment_show(LCD3, 4);
-        seven_segment_show(LCD4, 2);
+        uint8_t d1 = counter / 1000;
+        uint8_t d2 = counter / 100 % 10;
+        uint8_t d3 = counter / 10 % 10;
+        uint8_t d4 = counter % 10;
+        // best I can do without interrupts
+        for (uint8_t i = 0; i < 218; ++i) {
+            seven_segment_show(LCD1, d1);
+            seven_segment_show(LCD2, d2);
+            seven_segment_show(LCD3, d3);
+            seven_segment_show(LCD4, d4);
+        }
+        counter = (counter + 1) % 10000;
     }
 }
