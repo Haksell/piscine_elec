@@ -51,8 +51,6 @@ void i2c_send_cmd3(uint8_t address, uint8_t cmd1, uint8_t cmd2, uint8_t cmd3) {
     i2c_stop();
 }
 
-// TODO: send multiple cmds
-
 uint8_t i2c_read_cmd(uint8_t address) {
     i2c_start();
     i2c_write(address << 1 | I2C_READ);
