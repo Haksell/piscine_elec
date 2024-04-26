@@ -41,7 +41,7 @@ static void print_status() {
     }
 }
 
-static void i2c_init() { TWBR = (F_CPU / I2C_F - 16) / 2; }
+static void i2c_init() { TWBR = (F_CPU / F_I2C - 16) / 2; }
 
 static void i2c_start() {
     TWCR = 1 << TWINT | 1 << TWEN | 1 << TWSTA;

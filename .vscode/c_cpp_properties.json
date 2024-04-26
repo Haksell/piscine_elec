@@ -14,7 +14,7 @@
                 "-Werror",
                 "-mmcu=atmega328p",
                 "-DF_CPU=16000000UL",
-                "-DI2C_F=100000UL",
+                "-DF_I2C=100000UL",
                 "-DUART_BAUDRATE=115200",
                 "-Os"
             ]
