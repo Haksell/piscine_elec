@@ -1,58 +1,15 @@
+#include "apa102.h"
 #include "uart.h"
 #include <avr/interrupt.h>
 #include <avr/io.h>
 #include <stdbool.h>
 #include <stdlib.h>
 
-typedef struct {
-    uint8_t red;
-    uint8_t green;
-    uint8_t blue;
-} t_rgb;
-
-#define NUM_LEDS 3
 #define RAINBOW_PHASE_SHIFT (-30)
 
 t_rgb colors[NUM_LEDS];
 bool full_rainbow = false;
 uint8_t rainbow_state = 0;
-
-static void spi_init_master() {
-    DDRB = 1 << PB2 | 1 << PB3 | 1 << PB5;
-    SPCR = 1 << SPE | 1 << MSTR | 1 << SPR0;
-}
-
-static void spi_send(uint8_t data) {
-    SPDR = data;
-    while (!(SPSR & 1 << SPIF)) {}
-}
-
-static void apa102_start() {
-    spi_send(0x00);
-    spi_send(0x00);
-    spi_send(0x00);
-    spi_send(0x00);
-}
-
-static void apa102_send_color(t_rgb rgb) {
-    spi_send(0xe1);
-    spi_send(rgb.blue);
-    spi_send(rgb.green);
-    spi_send(rgb.red);
-}
-
-static void apa102_end() {
-    spi_send(0xff);
-    spi_send(0xff);
-    spi_send(0xff);
-    spi_send(0xff);
-}
-
-static void apa102_send_colors(t_rgb colors[NUM_LEDS]) {
-    apa102_start();
-    for (size_t i = 0; i < NUM_LEDS; ++i) apa102_send_color(colors[i]);
-    apa102_end();
-}
 
 static void str_upper(char* s) {
     while (*s) {
@@ -91,26 +48,25 @@ static bool parse_command(char* s, t_rgb* color, uint8_t* led) {
     } else return false;
 }
 
-static void wheel(uint8_t pos) {
+static t_rgb wheel(uint8_t pos) {
     pos = 255 - pos;
     if (pos < 85) {
-        apa102_send_color((t_rgb){255 - pos * 3, 0, pos * 3});
+        return (t_rgb){255 - pos * 3, 0, pos * 3};
     } else if (pos < 170) {
         pos = pos - 85;
-        apa102_send_color((t_rgb){0, pos * 3, 255 - pos * 3});
+        return (t_rgb){0, pos * 3, 255 - pos * 3};
     } else {
         pos = pos - 170;
-        apa102_send_color((t_rgb){pos * 3, 255 - pos * 3, 0});
+        return (t_rgb){pos * 3, 255 - pos * 3, 0};
     }
 }
 
 ISR(TIMER1_OVF_vect) {
     if (full_rainbow) {
-        apa102_start();
-        wheel(rainbow_state);
-        wheel(rainbow_state + RAINBOW_PHASE_SHIFT);
-        wheel(rainbow_state + (2 * RAINBOW_PHASE_SHIFT));
-        apa102_end();
+        apa102_send_colors((t_rgb[NUM_LEDS]
+        ){wheel(rainbow_state),
+          wheel(rainbow_state + RAINBOW_PHASE_SHIFT),
+          wheel(rainbow_state + (2 * RAINBOW_PHASE_SHIFT))});
     }
     ++rainbow_state;
 }
@@ -124,7 +80,7 @@ static void setup_timer1() {
 int main() {
     uart_init();
     setup_timer1();
-    spi_init_master();
+    apa102_init();
     apa102_send_colors(colors);
     sei();
     while (true) {
