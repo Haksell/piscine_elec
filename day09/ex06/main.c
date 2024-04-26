@@ -1,5 +1,4 @@
 #include "i2c.h"
-#include <avr/interrupt.h>
 #include <avr/io.h>
 #include <stdbool.h>
 
@@ -41,22 +40,20 @@ static void seven_segment_show(uint8_t pin, uint8_t digit) {
     pca9555_write(PCA9555_OUTPUT_REG, 0, 0);
 }
 
-ISR(ADC_vect) { ADCSRA |= 1 << ADSC; }
-
 static void adc_init() {
     ADMUX = 1 << REFS0 | PC0;
-    ADCSRA = 1 << ADPS2 | 1 << ADPS1 | 1 << ADPS0 | 1 << ADIE | 1 << ADEN | 1 << ADSC;
+    ADCSRA = 1 << ADPS2 | 1 << ADPS1 | 1 << ADPS0 | 1 << ADEN | 1 << ADSC;
 }
 
 int main() {
     i2c_init();
     adc_init();
-    sei();
     while (true) {
         uint16_t copy = ADC; // avoids data races
         seven_segment_show(LCD1, copy / 1000);
         seven_segment_show(LCD2, copy / 100 % 10);
         seven_segment_show(LCD3, copy / 10 % 10);
         seven_segment_show(LCD4, copy % 10);
+        ADCSRA |= 1 << ADSC;
     }
 }
