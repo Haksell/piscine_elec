@@ -40,11 +40,12 @@ int main() {
         pca9555_write(PCA9555_OUTPUT_REG, 0, DIGITS[4]);
         _delay_us(100);
         pca9555_write(PCA9555_OUTPUT_REG, 0, 0);
-        _delay_us(100);
+        // _delay_us(100);
+
         pca9555_write(PCA9555_CONFIG_REG, (uint8_t)~LCD4, 0x00);
         pca9555_write(PCA9555_OUTPUT_REG, 0, DIGITS[2]);
         _delay_us(100);
         pca9555_write(PCA9555_OUTPUT_REG, 0, 0);
-        _delay_us(100);
+        // _delay_us(100);
     }
 }
