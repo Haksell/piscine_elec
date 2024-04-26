@@ -22,6 +22,6 @@ static void pca9555_write(uint8_t reg, uint8_t data0, uint8_t data1) {
 
 int main() {
     i2c_init();
-    pca9555_write(PCA9555_CONFIG_REG, (uint8_t)~LCD4, 0x00);
+    pca9555_write(PCA9555_CONFIG_REG, (uint8_t)~LCD4, 0);
     pca9555_write(PCA9555_OUTPUT_REG, 0, DIGIT2);
 }
