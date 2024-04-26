@@ -8,6 +8,7 @@
 #define PCA9555_CONFIG_REG 0x06
 #define LED_D9 (1 << 3)
 
+// TODO: clean pca9555_write and pca9555_read everywhere once I've really understood
 static void pca9555_write(uint8_t reg, uint8_t data0, uint8_t data1) {
     i2c_start();
     i2c_write(PCA9555_ADDRESS << 1, true);
