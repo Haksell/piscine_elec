@@ -1,7 +1,6 @@
 #include "i2c.h"
 #include <avr/io.h>
 #include <stdbool.h>
-#include <util/delay.h>
 
 #define DEBOUNCE_ITERATIONS 50
 
