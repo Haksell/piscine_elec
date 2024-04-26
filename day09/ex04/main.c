@@ -1,7 +1,6 @@
 #include "i2c.h"
 #include <avr/io.h>
 #include <stdbool.h>
-#include <util/delay.h>
 
 #define PCA9555_ADDRESS 0x20
 
@@ -36,7 +35,6 @@ static void pca9555_write(uint8_t reg, uint8_t data0, uint8_t data1) {
 static void seven_segment_show(uint8_t pin, uint8_t digit) {
     pca9555_write(PCA9555_CONFIG_REG, (uint8_t)~pin, 0);
     pca9555_write(PCA9555_OUTPUT_REG, 0, DIGITS[digit]);
-    _delay_us(500);
     pca9555_write(PCA9555_OUTPUT_REG, 0, 0);
 }
 
