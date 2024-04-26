@@ -2,6 +2,10 @@
 #include <avr/io.h>
 #include <stdbool.h>
 
+#define MIN(A, B) ((A < B) ? (A) : (B))
+
+#define ROLLING_AVERAGE 51
+
 #define PCA9555_ADDRESS 0x20
 
 #define PCA9555_OUTPUT_REG 0x02
@@ -45,15 +49,27 @@ static void adc_init() {
     ADCSRA = 1 << ADPS2 | 1 << ADPS1 | 1 << ADPS0 | 1 << ADEN | 1 << ADSC;
 }
 
+static float average(uint16_t* arr, uint8_t size) {
+    uint32_t total = 0;
+    for (uint8_t i = 0; i < size; ++i) total += arr[i];
+    return (total + size / 2) / size;
+}
+
 int main() {
+    static uint16_t adcs[ROLLING_AVERAGE];
+    static uint8_t i = 0;
+
     i2c_init();
     adc_init();
     while (true) {
-        uint16_t copy = ADC; // avoids data races
-        seven_segment_show(LCD1, copy / 1000);
-        seven_segment_show(LCD2, copy / 100 % 10);
-        seven_segment_show(LCD3, copy / 10 % 10);
-        seven_segment_show(LCD4, copy % 10);
+        adcs[i % ROLLING_AVERAGE] = ADC;
+        ++i;
+        if (i == (ROLLING_AVERAGE << 1)) i = ROLLING_AVERAGE;
+        uint16_t adc_avg = average(adcs, MIN(i, ROLLING_AVERAGE));
+        seven_segment_show(LCD1, adc_avg / 1000);
+        seven_segment_show(LCD2, adc_avg / 100 % 10);
+        seven_segment_show(LCD3, adc_avg / 10 % 10);
+        seven_segment_show(LCD4, adc_avg % 10);
         ADCSRA |= 1 << ADSC;
     }
 }
