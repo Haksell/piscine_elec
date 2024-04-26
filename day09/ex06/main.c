@@ -56,8 +56,8 @@ static float average(uint16_t* arr, uint8_t size) {
 }
 
 int main() {
-    static uint16_t adcs[ROLLING_AVERAGE];
-    static uint8_t i = 0;
+    uint16_t adcs[ROLLING_AVERAGE];
+    uint8_t i = 0;
 
     i2c_init();
     adc_init();
