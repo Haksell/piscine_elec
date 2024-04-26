@@ -1,4 +1,4 @@
-DIRS := day*/ex* rush*/ex*
+DIRS := day*/ex* rush*
 
 clean:
 	for dir in $(DIRS); do \
