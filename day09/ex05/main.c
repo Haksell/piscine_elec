@@ -1,7 +1,7 @@
 #include "i2c.h"
+#include <avr/interrupt.h>
 #include <avr/io.h>
 #include <stdbool.h>
-#include <util/delay.h>
 
 #define PCA9555_ADDRESS 0x20
 
@@ -41,21 +41,25 @@ static void seven_segment_show(uint8_t pin, uint8_t digit) {
     pca9555_write(PCA9555_OUTPUT_REG, 0, 0);
 }
 
+uint16_t counter = 0;
+
+ISR(TIMER1_COMPA_vect) { counter = (counter + 1) % 10000; }
+
+static void timer1_init() {
+    TCCR1B |= 1 << WGM12 | 1 << CS12 | 1 << CS10; // CTC mode, prescaler=1024
+    OCR1A = F_CPU / 1024 - 1;
+    TIMSK1 |= 1 << OCIE1A;
+}
+
 int main() {
     i2c_init();
-    uint16_t counter = 0;
+    timer1_init();
+    sei();
     while (true) {
-        uint8_t d1 = counter / 1000;
-        uint8_t d2 = counter / 100 % 10;
-        uint8_t d3 = counter / 10 % 10;
-        uint8_t d4 = counter % 10;
-        // best I can do without interrupts
-        for (uint8_t i = 0; i < 218; ++i) {
-            seven_segment_show(LCD1, d1);
-            seven_segment_show(LCD2, d2);
-            seven_segment_show(LCD3, d3);
-            seven_segment_show(LCD4, d4);
-        }
-        counter = (counter + 1) % 10000;
+        uint16_t copy = counter; // avoids data races
+        seven_segment_show(LCD1, copy / 1000);
+        seven_segment_show(LCD2, copy / 100 % 10);
+        seven_segment_show(LCD3, copy / 10 % 10);
+        seven_segment_show(LCD4, copy % 10);
     }
 }
