@@ -49,7 +49,7 @@ static void adc_init() {
     ADCSRA = 1 << ADPS2 | 1 << ADPS1 | 1 << ADPS0 | 1 << ADEN | 1 << ADSC;
 }
 
-static float average(uint16_t* arr, uint8_t size) {
+static uint16_t average(uint16_t* arr, uint8_t size) {
     uint32_t total = 0;
     for (uint8_t i = 0; i < size; ++i) total += arr[i];
     return (total + size / 2) / size;
